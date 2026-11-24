@@ -73,7 +73,7 @@ export default function Messages() {
     return (
       <>
         <h1>Messages</h1>
-        <p className="muted">No messages yet. Open an item and use "Send message" to contact its owner.</p>
+        <div className="empty"><span>📭</span>No messages yet. Open any item on the board to start a chat.</div>
       </>
     );
   }

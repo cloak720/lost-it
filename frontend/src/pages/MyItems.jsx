@@ -19,19 +19,19 @@ export default function MyItems() {
     <>
       <div className="section-head">
         <h1>My items</h1>
-        <Link to="/post" className="btn btn-primary">+ Report item</Link>
+        <Link to="/post" className="btn btn-primary">📌 Pin an item</Link>
       </div>
-      {items.length === 0 && <p className="muted">You haven't reported anything yet.</p>}
+      {items.length === 0 && <div className="empty"><span>🫙</span>Nothing pinned yet. Lucky you!</div>}
 
       {open.length > 0 && (
         <section>
-          <h2>Open ({open.length})</h2>
+          <h2><span className="highlight">Still looking ({open.length})</span></h2>
           <div className="grid">{open.map((i) => <ItemCard key={i.id} item={i} />)}</div>
         </section>
       )}
       {done.length > 0 && (
         <section>
-          <h2>Returned ({done.length})</h2>
+          <h2><span className="highlight">Happy endings ({done.length})</span></h2>
           <div className="grid">{done.map((i) => <ItemCard key={i.id} item={i} />)}</div>
         </section>
       )}

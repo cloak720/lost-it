@@ -59,14 +59,15 @@ export default function PostItem() {
 
   return (
     <div className="narrow">
-      <h1>Report an item</h1>
+      <h1>Pin it on the board</h1>
+      <p className="page-sub">the more detail you add, the better the matches</p>
       <form className="card form" onSubmit={submit}>
         <div className="type-toggle">
           <button type="button" className={lost ? "active lost" : ""} onClick={() => setForm({ ...form, type: "lost" })}>
-            😟 I lost something
+            <span className="emoji">😩</span> I lost something
           </button>
           <button type="button" className={!lost ? "active found" : ""} onClick={() => setForm({ ...form, type: "found" })}>
-            🙌 I found something
+            <span className="emoji">🙌</span> I found something
           </button>
         </div>
 
@@ -106,7 +107,7 @@ export default function PostItem() {
 
         {error && <p className="error">{error}</p>}
         <button className={`btn ${lost ? "btn-lost" : "btn-found"}`} disabled={saving}>
-          {saving ? "Posting…" : "Post item & find matches"}
+          {saving ? "Pinning…" : "📌 Pin it & find matches"}
         </button>
       </form>
     </div>

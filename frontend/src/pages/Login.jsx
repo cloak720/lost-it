@@ -23,7 +23,8 @@ export default function Login() {
 
   return (
     <div className="narrow auth">
-      <h1>Welcome back</h1>
+      <h1>Welcome back 👋</h1>
+      <p className="page-sub">let's find your stuff</p>
       <form className="card form" onSubmit={submit}>
         <label>Email
           <input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} />

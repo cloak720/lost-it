@@ -32,10 +32,10 @@ export default function App() {
           <Route path="/messages" element={<RequireLogin><Messages /></RequireLogin>} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
-          <Route path="*" element={<p className="muted center">Page not found.</p>} />
+          <Route path="*" element={<div className="empty"><span>🗺️</span>This page got lost too.</div>} />
         </Routes>
       </main>
-      <footer className="footer">Lost-It · Campus Lost &amp; Found Portal</footer>
+      <footer className="footer">Lost-It ✦ helping stuff find its way home</footer>
     </>
   );
 }

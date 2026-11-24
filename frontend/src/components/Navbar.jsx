@@ -26,7 +26,7 @@ export default function Navbar() {
     <header className="navbar">
       <div className="container nav-inner">
         <Link to="/" className="brand">
-          <span className="brand-icon">🔍</span> Lost-It
+          <span className="brand-logo">🔍</span> Lost-It
         </Link>
         <nav className="nav-links">
           <NavLink to="/browse">Browse</NavLink>
@@ -36,7 +36,7 @@ export default function Navbar() {
               <NavLink to="/messages">
                 Messages {unread > 0 && <span className="badge-count">{unread}</span>}
               </NavLink>
-              <Link to="/post" className="btn btn-primary btn-sm">+ Report item</Link>
+              <Link to="/post" className="btn btn-primary btn-sm">📌 Pin an item</Link>
               <button className="btn btn-ghost btn-sm" onClick={handleLogout} title={user.email}>
                 Log out
               </button>

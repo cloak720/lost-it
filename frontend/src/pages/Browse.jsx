@@ -39,11 +39,12 @@ export default function Browse() {
 
   return (
     <>
-      <h1>Browse items</h1>
+      <h1>The board</h1>
+      <p className="page-sub">everything people have lost &amp; found around campus</p>
       <div className="card filters">
         <form onSubmit={handleSearch} className="search-row">
           <input
-            placeholder="Search e.g. earphones, ID card, keys…"
+            placeholder="🔍 Search: earphones, ID card, keys…"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
@@ -54,7 +55,7 @@ export default function Browse() {
             {[["", "All"], ["lost", "Lost"], ["found", "Found"]].map(([value, label]) => (
               <button
                 key={label}
-                className={`tab ${type === value ? "active" : ""}`}
+                className={`tab t-${value || "all"} ${type === value ? "active" : ""}`}
                 onClick={() => setFilter("type", value)}
               >
                 {label}
@@ -80,10 +81,10 @@ export default function Browse() {
       {loading ? (
         <p className="muted">Loading…</p>
       ) : items.length === 0 ? (
-        <p className="muted center">No items match these filters.</p>
+        <div className="empty"><span>🤷</span>Nothing pinned that matches. Try different filters?</div>
       ) : (
         <>
-          <p className="muted small">{items.length} item(s)</p>
+          <p className="count">{items.length} item{items.length === 1 ? "" : "s"} pinned</p>
           <div className="grid">{items.map((item) => <ItemCard key={item.id} item={item} />)}</div>
         </>
       )}

@@ -24,7 +24,8 @@ export default function Register() {
 
   return (
     <div className="narrow auth">
-      <h1>Create your account</h1>
+      <h1>Join the board ✌️</h1>
+      <p className="page-sub">takes 20 seconds, promise</p>
       <form className="card form" onSubmit={submit}>
         <label>Full name
           <input required value={form.name} onChange={update("name")} />
