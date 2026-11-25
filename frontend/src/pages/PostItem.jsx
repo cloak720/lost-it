@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { api } from "../api.js";
 import FoundCard from "../components/FoundCard.jsx";
+import PageHeader from "../components/PageHeader.jsx";
 import WantedPoster from "../components/WantedPoster.jsx";
 
 function today() {
@@ -74,75 +75,77 @@ export default function PostItem() {
   };
 
   return (
-    <div className="post-layout">
-      <form className="paper-form" onSubmit={submit}>
-        <div className="form-head">
-          <span>Lost &amp; Found Office</span>
-          <span>Form LF-1</span>
-        </div>
-        <h1>{lost ? "Report a lost item" : "Hand in a found item"}</h1>
+    <>
+      <PageHeader
+        kicker="Form LF-1 · takes 30 seconds"
+        title={lost ? <>Report a <span className="hand">lost</span> item</> : <>Hand in a <span className="hand">found</span> item</>}
+        subtitle="The more detail you add, the better the matches. Watch your poster or tag build itself on the right."
+      />
 
-        <div className="type-toggle">
-          <button type="button" className={lost ? "active lost" : ""} onClick={() => setForm({ ...form, type: "lost" })}>
-            <span className="emoji">📜</span> I lost something
-            <small>Put up a Wanted poster</small>
-          </button>
-          <button type="button" className={!lost ? "active found" : ""} onClick={() => setForm({ ...form, type: "found" })}>
-            <span className="emoji">📦</span> I found something
-            <small>Drop it in a Found Room box</small>
-          </button>
-        </div>
+      <div className="post-grid">
+        <form className="card form-card" onSubmit={submit}>
+          <div className="type-switch" role="radiogroup" aria-label="What happened?">
+            <button type="button" role="radio" aria-checked={lost} className={lost ? "active lost" : ""} onClick={() => setForm({ ...form, type: "lost" })}>
+              <span className="emoji">😭</span> I lost something
+              <small>Put up a Wanted poster</small>
+            </button>
+            <button type="button" role="radio" aria-checked={!lost} className={!lost ? "active found" : ""} onClick={() => setForm({ ...form, type: "found" })}>
+              <span className="emoji">🙌</span> I found something
+              <small>Drop it in a Found Room box</small>
+            </button>
+          </div>
 
-        <label>What is it?
-          <input required minLength={3} maxLength={120} value={form.title} onChange={update("title")}
-            placeholder={lost ? "e.g. Black JBL earphones" : "e.g. Blue water bottle"} />
-        </label>
-
-        <div className="row">
-          <label>Category
-            <select required value={form.category_id} onChange={update("category_id")}>
-              <option value="">Choose…</option>
-              {meta.categories.map((c) => <option key={c.id} value={c.id}>{c.icon} {c.name}</option>)}
-            </select>
+          <label>What is it?
+            <input required minLength={3} maxLength={120} value={form.title} onChange={update("title")}
+              placeholder={lost ? "e.g. Black JBL earphones" : "e.g. Blue water bottle"} />
           </label>
-          <label>{lost ? "Last seen at" : "Found at"}
-            <select required value={form.location_id} onChange={update("location_id")}>
-              <option value="">Choose…</option>
-              {meta.locations.map((l) => <option key={l.id} value={l.id}>{l.name}</option>)}
-            </select>
-          </label>
-        </div>
 
-        <div className="row">
-          <label>{lost ? "Date lost" : "Date found"}
-            <input type="date" required max={today()} value={form.item_date} onChange={update("item_date")} />
-          </label>
-          {lost && (
-            <label>Reward (optional)
-              <input maxLength={60} value={form.reward} onChange={update("reward")} placeholder="₹200, a coffee…" />
+          <div className="form-row">
+            <label>Category
+              <select required value={form.category_id} onChange={update("category_id")}>
+                <option value="">Choose…</option>
+                {meta.categories.map((c) => <option key={c.id} value={c.id}>{c.icon} {c.name}</option>)}
+              </select>
             </label>
-          )}
-        </div>
+            <label>{lost ? "Last seen at" : "Found at"}
+              <select required value={form.location_id} onChange={update("location_id")}>
+                <option value="">Choose…</option>
+                {meta.locations.map((l) => <option key={l.id} value={l.id}>{l.name}</option>)}
+              </select>
+            </label>
+          </div>
 
-        <label>Description
-          <textarea rows={4} value={form.description} onChange={update("description")}
-            placeholder="Colour, brand, marks, what was inside… More detail means better matches." />
-        </label>
+          <div className="form-row">
+            <label>{lost ? "Date lost" : "Date found"}
+              <input type="date" required max={today()} value={form.item_date} onChange={update("item_date")} />
+            </label>
+            {lost && (
+              <label>Reward (optional)
+                <input maxLength={60} value={form.reward} onChange={update("reward")} placeholder="₹200, a coffee, notes…" />
+              </label>
+            )}
+          </div>
 
-        <label>Photo (optional)
-          <input type="file" accept="image/png,image/jpeg,image/gif,image/webp" onChange={pickImage} />
-        </label>
+          <label>Description
+            <textarea rows={4} value={form.description} onChange={update("description")}
+              placeholder="Colour, brand, stickers, what was inside… More detail means better matches." />
+          </label>
 
-        {error && <p className="error">{error}</p>}
-        <button className={`btn btn-big ${lost ? "btn-red" : "btn-blue"}`} disabled={saving}>
-          {saving ? "Filing…" : lost ? "📌 Nail the poster up" : "📦 Put it in the box"}
-        </button>
-      </form>
+          <label>Photo (optional)
+            <input type="file" accept="image/png,image/jpeg,image/gif,image/webp" onChange={pickImage} />
+          </label>
 
-      <aside className="post-preview">
-        <p className="kicker">Live preview</p>
-        {lost ? <WantedPoster item={draft} as="div" /> : <FoundCard item={draft} as="div" />}
-      </aside>
-    </div>
+          {error && <p className="error">{error}</p>}
+          <button className={`btn btn-lg ${lost ? "btn-lost" : "btn-found"}`} disabled={saving}>
+            {saving ? "Filing…" : lost ? "📌 Nail the poster up" : "📦 Put it in the box"}
+          </button>
+        </form>
+
+        <aside className={`preview-stage ${form.type}`} aria-label="Live preview">
+          <span className="label">Live preview</span>
+          {lost ? <WantedPoster item={draft} as="div" /> : <FoundCard item={draft} as="div" />}
+        </aside>
+      </div>
+    </>
   );
 }

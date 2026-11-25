@@ -4,13 +4,26 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Lost-It · Campus Lost & Found</title>
+
+    <!-- Pick the saved theme (or the device's preference) before the page paints, so there's no flash -->
+    <script>
+      (function () {
+        var theme;
+        try { theme = localStorage.getItem("lostit_theme"); } catch (e) {}
+        if (theme !== "light" && theme !== "dark") {
+          theme = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+        }
+        document.documentElement.setAttribute("data-theme", theme);
+      })();
+    </script>
+
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;600;800&family=IM+Fell+English:ital@0;1&family=Permanent+Marker&family=Rye&family=Space+Mono:wght@400;700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&family=IM+Fell+English:ital@0;1&family=Permanent+Marker&family=Rye&family=Space+Mono:wght@400;700&display=swap"
       rel="stylesheet"
     />
-    <title>Lost-It · Campus Lost & Found Office</title>
   </head>
   <body>
     <div id="root"></div>

@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { api } from "../api.js";
 import CrateBox from "../components/CrateBox.jsx";
+import PageHeader from "../components/PageHeader.jsx";
 
 export default function FoundRoom() {
   const navigate = useNavigate();
@@ -20,26 +21,27 @@ export default function FoundRoom() {
   const total = boxes ? boxes.reduce((sum, b) => sum + b.count, 0) : 0;
 
   return (
-    <div className="room">
+    <div className="scene scene-room">
       <div className="bulb" aria-hidden="true"><span /></div>
 
-      <header className="room-head">
-        <p className="kicker">Storage · Room 01</p>
-        <h1 className="stencil">The Found Room</h1>
-        <p className="lead">
-          Everything people handed in, sorted into boxes. <b>{total}</b> item{total === 1 ? "" : "s"} waiting.
-          Hover a box to peek, click it to open.
-        </p>
-        <form className="room-search" onSubmit={searchAll}>
-          <input placeholder="Or rummage through every box… (e.g. keys, earbuds)" value={search}
-            onChange={(e) => setSearch(e.target.value)} />
-          <button className="btn btn-amber">Rummage</button>
-          <Link to="/post?type=found" className="btn btn-blue">+ Hand something in</Link>
-        </form>
-      </header>
+      <PageHeader
+        center
+        kicker="Storage · Room 01"
+        title={<>The Found <span className="hand">Room</span></>}
+        subtitle={`Everything students handed in, sorted into boxes. ${total} item${total === 1 ? "" : "s"} waiting. Hover over a box to peek inside, click to open it.`}
+      />
+
+      <form className="toolbar" onSubmit={searchAll}>
+        <div className="toolbar-search">
+          <input placeholder="Or rummage through every box… (keys, earbuds, ID card)" value={search}
+            onChange={(e) => setSearch(e.target.value)} aria-label="Search all found items" />
+          <button className="btn btn-sm">Rummage</button>
+        </div>
+        <Link to="/post?type=found" className="btn btn-found btn-sm">+ Hand something in</Link>
+      </form>
 
       {!boxes ? (
-        <p className="center dim">Unlocking the storage room…</p>
+        <p className="center muted">Unlocking the storeroom…</p>
       ) : (
         <div className="shelves">
           {boxes.map((box) => (

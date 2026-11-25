@@ -6,6 +6,7 @@ Lost-It is a full-stack web app that helps students get lost things back, built 
 - **📜 The Wanted Board.** Lost items become **bounty-style WANTED posters** nailed to a wooden wall, with a **reward**.
 - **🔎 Smart matching** links posters to boxed items automatically, and people **message each other** inside the app.
 - **★ Admins** moderate posts, block users, manage categories and places, and see dashboard charts.
+- **☀️ / 🌙 Day & Night themes.** One click swaps the whole palette: a sunny notebook-paper look by day, an indigo late-night-library look by night (the Found Room's bulb even switches on).
 
 **Tech stack:** Python · Flask (REST API) · MySQL · React (Vite) · pure CSS 3D (no 3D libraries)
 
@@ -23,6 +24,8 @@ Lost-It is a full-stack web app that helps students get lost things back, built 
 | 💬 Messaging | Contact the finder or owner without sharing phone numbers, with an unread badge |
 | ✅ Case closed | Owners (or admins) mark items returned, and they get a RECOVERED / CLAIMED stamp |
 | ★ Admin desk | Stats, charts by category and location, block/unblock users, promote admins, moderate items, manage categories and places |
+| ☀️🌙 Themes | Day/Night toggle with its own colour palette for each mode, remembered per browser; follows the device setting on first visit |
+| 📱 Mobile | App-style bottom tab bar on phones |
 
 ### Roles
 
@@ -145,7 +148,7 @@ lost-it/
 │   ├── auth_utils.py        @user_required / @admin_required decorators
 │   ├── schema.sql           Tables + categories/locations
 │   ├── init_db.py           Creates the database from schema.sql
-│   ├── seed.py              Demo users (incl. an admin), items, messages
+│   ├── seed.py              Demo students, items, messages + the admin from .env
 │   ├── make_admin.py        Promote an account to admin
 │   ├── routes/
 │   │   ├── auth.py          /api/auth      register, login, me
@@ -159,9 +162,21 @@ lost-it/
     └── src/
         ├── api.js           fetch wrapper (adds JWT token)
         ├── AuthContext.jsx  Logged-in user state
-        ├── components/      CrateBox (3D box), WantedPoster, FoundCard, MatchBadge, Navbar
-        └── pages/           Home, FoundRoom, FoundBox, WantedBoard, ItemDetail,
-                             PostItem, MyItems, Messages, Admin, Login, Register
+        ├── confetti.js      🎉 when an item is marked returned
+        ├── components/      CrateBox (3D box), WantedPoster, FoundCard, MatchBadge,
+        │                    Navbar, ThemeToggle, PageHeader
+        ├── pages/           Home, FoundRoom, FoundBox, WantedBoard, ItemDetail,
+        │                    PostItem, MyItems, Messages, Admin, Login, Register
+        └── styles/
+            ├── tokens.css   fonts, spacing, and the Day + Night colour themes
+            ├── base.css     buttons, form fields, chips, stamps
+            ├── layout.css   top bar, mobile tab bar, page headers, scenes, footer
+            ├── home.css     home page
+            ├── crate.css    the 3D cardboard box
+            ├── poster.css   the WANTED poster
+            ├── cards.css    found-item cards + match badges
+            ├── pages.css    item page, report form, login pass, chat
+            └── admin.css    admin desk + charts
 ```
 
 ---
@@ -179,10 +194,11 @@ python -m venv .venv
 pip install -r requirements.txt
 
 copy .env.example .env          # macOS/Linux: cp .env.example .env
-# open .env and set your MySQL password (and port, if it isn't 3306)
+# open .env and set your MySQL password (and port, if it isn't 3306),
+# plus ADMIN_NAME / ADMIN_EMAIL / ADMIN_PASSWORD for the admin account
 
 python init_db.py               # creates the lost_it database and tables
-python seed.py                  # optional: adds demo data (incl. an admin)
+python seed.py                  # adds demo students + creates the admin from .env
 python app.py                   # API runs on http://localhost:5000
 ```
 
@@ -200,19 +216,18 @@ The React dev server forwards `/api` and `/uploads` to Flask, so both run togeth
 
 ### Demo accounts (after `seed.py`)
 
-All demo accounts use the password **`demo1234`**.
+| Name | Email | Password | Role |
+|---|---|---|---|
+| admin1 | admin1@campus.edu | *whatever `ADMIN_PASSWORD` is in your `.env`* | **admin** |
+| Asha Menon | asha@campus.edu | demo1234 | user |
+| Rahul Nair | rahul@campus.edu | demo1234 | user |
+| Fathima K | fathima@campus.edu | demo1234 | user |
+| Arjun Das | arjun@campus.edu | demo1234 | user |
 
-| Email | Role |
-|---|---|
-| admin@campus.edu | **admin** |
-| asha@campus.edu | user |
-| rahul@campus.edu | user |
-| fathima@campus.edu | user |
-| arjun@campus.edu | user |
-
+The admin password lives only in `.env`, which is git-ignored, so it never ends up on GitHub. Change it in `.env` and run `python seed.py` again to update it.
 To make any other account an admin: `python make_admin.py someone@campus.edu`
 
-**Try this:** open the **Found Room** and click the *Electronics* box. Then log in as Asha, open the *Black JBL wireless earphones* poster, and scroll to **Possible sightings**. Rahul's found earbuds are a 100% match.
+**Try this:** open the **Found Room** and click the *Electronics* box. Then log in as Asha (the login page has a "Fill in a demo student" button), open the *Black JBL wireless earphones* poster, and scroll to **Possible sightings**. Rahul's found earbuds are a 100% match. Flip the ☀️/🌙 switch in the top bar to see both themes.
 
 ---
 

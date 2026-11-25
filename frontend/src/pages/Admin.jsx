@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { api, formatDate } from "../api.js";
 import { useAuth } from "../AuthContext.jsx";
 import { caseNo } from "../components/FoundCard.jsx";
+import PageHeader from "../components/PageHeader.jsx";
 
 const TABS = [
   ["overview", "📊 Overview"],
@@ -16,7 +17,7 @@ const TABS = [
 function CategoryChart({ rows }) {
   const max = Math.max(1, ...rows.flatMap((r) => [r.lost, r.found]));
   return (
-    <figure className="chart">
+    <figure className="card chart">
       <figcaption>Items reported, by category</figcaption>
       <div className="legend">
         <span><i className="swatch lost" /> Lost</span>
@@ -53,14 +54,14 @@ function CategoryChart({ rows }) {
 function HotspotChart({ rows }) {
   const max = Math.max(1, ...rows.map((r) => r.total));
   return (
-    <figure className="chart">
+    <figure className="card chart">
       <figcaption>Hotspots: where things go missing or turn up</figcaption>
       <div className="bars">
         {rows.map((r) => (
           <div className="bar-row single" key={r.name} data-tip={`${r.name}: ${r.total} item(s)`}>
             <span className="bar-label">📍 {r.name}</span>
             <div className="bar-line">
-              <span className="bar ink" style={{ width: `${(r.total / max) * 100}%` }} />
+              <span className="bar neutral" style={{ width: `${(r.total / max) * 100}%` }} />
               <span className="bar-value">{r.total}</span>
             </div>
           </div>
@@ -77,16 +78,16 @@ function Overview() {
   useEffect(() => {
     api("/admin/stats").then(setData).catch(() => {});
   }, []);
-  if (!data) return <p className="dim">Loading the books…</p>;
+  if (!data) return <p className="muted">Loading the books…</p>;
   const t = data.totals;
   return (
     <>
       <div className="kpis">
-        <div className="kpi"><b>{t.items}</b><span>items reported</span></div>
-        <div className="kpi"><b>{t.return_rate}%</b><span>returned to owners</span></div>
-        <div className="kpi"><b>{t.users}</b><span>accounts</span></div>
-        <div className="kpi"><b>{t.blocked}</b><span>blocked</span></div>
-        <div className="kpi"><b>{t.messages}</b><span>messages sent</span></div>
+        <div className="card kpi"><b>{t.items}</b><span>items reported</span></div>
+        <div className="card kpi"><b>{t.return_rate}%</b><span>returned to owners</span></div>
+        <div className="card kpi"><b>{t.users}</b><span>accounts</span></div>
+        <div className="card kpi"><b>{t.blocked}</b><span>blocked</span></div>
+        <div className="card kpi"><b>{t.messages}</b><span>messages sent</span></div>
       </div>
       <div className="chart-grid">
         <CategoryChart rows={data.by_category} />
@@ -114,10 +115,10 @@ function Users() {
   }
 
   return (
-    <>
+    <div className="card panel">
       {error && <p className="error">{error}</p>}
       <div className="table-wrap">
-        <table className="ledger-table">
+        <table className="data-table">
           <thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Items</th><th>Joined</th><th>Status</th><th /></tr></thead>
           <tbody>
             {users.map((u) => (
@@ -129,12 +130,12 @@ function Users() {
                 <td>{formatDate(u.created_at)}</td>
                 <td>{u.is_active ? "Active" : "⛔ Blocked"}</td>
                 <td className="actions">
-                  {u.id === me.id ? <span className="dim">that's you</span> : (
+                  {u.id === me.id ? <span className="muted small">that's you</span> : (
                     <>
-                      <button className="btn btn-xs btn-ghost-dark" onClick={() => change(u, { is_active: !u.is_active })}>
+                      <button className="btn btn-outline btn-xs" onClick={() => change(u, { is_active: !u.is_active })}>
                         {u.is_active ? "Block" : "Unblock"}
                       </button>
-                      <button className="btn btn-xs btn-ghost-dark" onClick={() => change(u, { role: u.role === "admin" ? "user" : "admin" })}>
+                      <button className="btn btn-outline btn-xs" onClick={() => change(u, { role: u.role === "admin" ? "user" : "admin" })}>
                         {u.role === "admin" ? "Remove admin" : "Make admin"}
                       </button>
                     </>
@@ -145,7 +146,7 @@ function Users() {
           </tbody>
         </table>
       </div>
-    </>
+    </div>
   );
 }
 
@@ -173,18 +174,18 @@ function Items() {
   }
 
   return (
-    <>
-      <form className="toolbar toolbar-paper" onSubmit={(e) => { e.preventDefault(); load(); }}>
-        <input placeholder="Search titles & descriptions…" value={q} onChange={(e) => setQ(e.target.value)} />
-        <select value={type} onChange={(e) => setType(e.target.value)}>
+    <div className="card panel">
+      <form className="table-tools" onSubmit={(e) => { e.preventDefault(); load(); }}>
+        <input placeholder="Search titles & descriptions…" value={q} onChange={(e) => setQ(e.target.value)} aria-label="Search items" />
+        <select value={type} onChange={(e) => setType(e.target.value)} aria-label="Type">
           <option value="">Lost & found</option>
           <option value="lost">Lost only</option>
           <option value="found">Found only</option>
         </select>
-        <button className="btn btn-amber btn-sm">Search</button>
+        <button className="btn btn-sm">Search</button>
       </form>
       <div className="table-wrap">
-        <table className="ledger-table">
+        <table className="data-table">
           <thead><tr><th>No.</th><th>Item</th><th>Type</th><th>Reported by</th><th>Date</th><th>Status</th><th /></tr></thead>
           <tbody>
             {items.map((i) => (
@@ -196,16 +197,16 @@ function Items() {
                 <td>{formatDate(i.item_date)}</td>
                 <td>{i.status === "open" ? "Open" : "✅ Closed"}</td>
                 <td className="actions">
-                  <button className="btn btn-xs btn-ghost-dark" onClick={() => toggle(i)}>{i.status === "open" ? "Close" : "Reopen"}</button>
-                  <button className="btn btn-xs btn-danger" onClick={() => remove(i)}>Delete</button>
+                  <button className="btn btn-outline btn-xs" onClick={() => toggle(i)}>{i.status === "open" ? "Close" : "Reopen"}</button>
+                  <button className="btn btn-danger btn-xs" onClick={() => remove(i)}>Delete</button>
                 </td>
               </tr>
             ))}
           </tbody>
         </table>
-        {items.length === 0 && <p className="dim center">No items match.</p>}
+        {items.length === 0 && <p className="muted center">No items match.</p>}
       </div>
-    </>
+    </div>
   );
 }
 
@@ -237,20 +238,20 @@ function LookupList({ title, table, rows, withIcon, reload }) {
   }
 
   return (
-    <div className="lookup">
+    <div className="card lookup">
       <h3>{title}</h3>
       <ul>
         {rows.map((r) => (
           <li key={r.id}>
             <span>{r.icon} {r.name}</span>
-            <button className="btn btn-xs btn-ghost-dark" onClick={() => remove(r)} aria-label={`Delete ${r.name}`}>✕</button>
+            <button className="btn btn-outline btn-xs" onClick={() => remove(r)} aria-label={`Delete ${r.name}`}>✕</button>
           </li>
         ))}
       </ul>
       <form onSubmit={add} className="lookup-add">
-        {withIcon && <input required className="icon-input" maxLength={4} placeholder="🙂" value={icon} onChange={(e) => setIcon(e.target.value)} />}
-        <input required placeholder={`New ${table === "categories" ? "category" : "place"}`} value={name} onChange={(e) => setName(e.target.value)} />
-        <button className="btn btn-amber btn-sm">Add</button>
+        {withIcon && <input required className="icon-input" maxLength={4} placeholder="🙂" value={icon} onChange={(e) => setIcon(e.target.value)} aria-label="Icon" />}
+        <input required placeholder={`New ${table === "categories" ? "category" : "place"}`} value={name} onChange={(e) => setName(e.target.value)} aria-label="Name" />
+        <button className="btn btn-sm">Add</button>
       </form>
       {error && <p className="error">{error}</p>}
     </div>
@@ -270,28 +271,26 @@ function Lists() {
 }
 
 export default function Admin() {
+  const { user } = useAuth();
   const [tab, setTab] = useState("overview");
   return (
-    <div className="desk">
-      <div className="page-head">
-        <div>
-          <p className="kicker">Staff only</p>
-          <h1 className="stencil">Office Manager's Desk</h1>
-        </div>
-      </div>
-      <div className="desk-tabs" role="tablist">
+    <>
+      <PageHeader
+        kicker={`Staff only · signed in as ${user.name}`}
+        title={<>Admin <span className="hand">desk</span></>}
+        subtitle="Keep the office tidy: watch the numbers, moderate posts and manage accounts."
+      />
+      <div className="seg" role="tablist" aria-label="Admin sections">
         {TABS.map(([key, label]) => (
           <button key={key} role="tab" aria-selected={tab === key} className={tab === key ? "active" : ""} onClick={() => setTab(key)}>
             {label}
           </button>
         ))}
       </div>
-      <div className="desk-paper">
-        {tab === "overview" && <Overview />}
-        {tab === "users" && <Users />}
-        {tab === "items" && <Items />}
-        {tab === "lists" && <Lists />}
-      </div>
-    </div>
+      {tab === "overview" && <Overview />}
+      {tab === "users" && <Users />}
+      {tab === "items" && <Items />}
+      {tab === "lists" && <Lists />}
+    </>
   );
 }

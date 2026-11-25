@@ -1,0 +1,102 @@
+/* =====================================================================
+   FOUND ITEM CARD (3D tilt + manila claim tag) and MATCH BADGE
+   ===================================================================== */
+.found-card {
+  --rx: 0deg;
+  --ry: 0deg;
+  display: block;
+  color: #2a1d12;
+  text-decoration: none;
+  transform: perspective(800px) rotateX(var(--rx)) rotateY(var(--ry));
+  transform-style: preserve-3d;
+  transition: transform 0.18s ease-out;
+}
+.found-card:focus-visible { outline: 3px solid var(--found); outline-offset: 6px; border-radius: 6px; }
+.found-inner {
+  position: relative;
+  padding: 10px 10px 0;
+  border-radius: 6px;
+  background: #fffdf6;
+  box-shadow: 0 16px 30px rgba(0, 0, 0, 0.25);
+  transform-style: preserve-3d;
+  transition: box-shadow 0.2s;
+}
+.found-card:hover .found-inner { box-shadow: 0 28px 44px rgba(0, 0, 0, 0.35); }
+.found-photo {
+  position: relative;
+  display: grid;
+  place-items: center;
+  height: 175px;
+  overflow: hidden;
+  border-radius: 3px;
+  background: radial-gradient(circle at 50% 40%, #f6efdf, #d6c9a8);
+  transform: translateZ(18px);
+}
+.found-photo img { width: 100%; height: 100%; object-fit: cover; }
+.found-emoji { font-size: 4.4rem; filter: drop-shadow(0 12px 10px rgba(0, 0, 0, 0.3)); transition: transform 0.3s; }
+.found-card:hover .found-emoji { transform: scale(1.12) rotate(-6deg); }
+
+.claim-tag {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  margin: 10px -12px -14px 22px;
+  padding: 9px 14px 11px 32px;
+  color: #2a1d12;
+  background: var(--manila);
+  clip-path: polygon(16px 0, 100% 0, 100% 100%, 16px 100%, 0 50%);
+  transform: rotate(-2.5deg) translateZ(34px);
+}
+.claim-hole {
+  position: absolute;
+  top: 50%;
+  left: 12px;
+  width: 10px;
+  height: 10px;
+  margin-top: -5px;
+  border-radius: 50%;
+  background: #4a3a2a;
+  box-shadow: inset 0 1px 2px #000;
+}
+.claim-no { font: 700 0.6rem var(--font-label); text-transform: uppercase; letter-spacing: 0.08em; color: #7a5a2a; }
+.claim-tag strong { font-size: 1rem; line-height: 1.2; }
+.claim-meta { font: 0.7rem var(--font-label); color: #5a4428; }
+.found-card.is-resolved .found-photo { filter: grayscale(0.7); }
+.stamp-claimed { color: #2d6a9f; background: rgba(255, 253, 246, 0.85); }
+
+.found-card.big .found-photo { height: 340px; }
+.found-card.big .found-emoji { font-size: 8rem; }
+.found-card.big .claim-tag strong { font-size: 1.3rem; }
+
+/* ---------- Match badge (under a suggested match) ---------- */
+.match {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--s3);
+  margin-top: 26px;
+  padding: var(--s3);
+  text-align: left;
+  color: var(--text);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  box-shadow: var(--shadow);
+}
+.match-score {
+  flex-shrink: 0;
+  display: grid;
+  place-content: center;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  text-align: center;
+  color: var(--text);
+  border: 3px solid var(--brand);
+  transform: rotate(-10deg);
+}
+.match-score.hot { color: var(--on-brand); background: var(--brand); }
+.match-score b { font-size: 1rem; line-height: 1; }
+.match-score small { font: 700 0.5rem var(--font-label); text-transform: uppercase; }
+.match ul { margin: 0; padding: 0; list-style: none; font: 0.7rem/1.5 var(--font-label); color: var(--text-2); }
+.match li::before { content: "✓ "; color: var(--good); font-weight: 700; }

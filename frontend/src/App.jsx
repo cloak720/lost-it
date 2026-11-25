@@ -1,4 +1,4 @@
-import { Navigate, Route, Routes, useLocation } from "react-router-dom";
+import { Link, Navigate, Route, Routes, useLocation } from "react-router-dom";
 import { useAuth } from "./AuthContext.jsx";
 import Navbar from "./components/Navbar.jsx";
 import Home from "./pages/Home.jsx";
@@ -16,7 +16,7 @@ import Register from "./pages/Register.jsx";
 function RequireLogin({ children, admin = false }) {
   const { user, loading } = useAuth();
   const location = useLocation();
-  if (loading) return <p className="center dim">Checking your pass…</p>;
+  if (loading) return <p className="center muted">Checking your pass…</p>;
   if (!user) return <Navigate to="/login" replace state={{ from: location.pathname + location.search }} />;
   if (admin && user.role !== "admin") {
     return <div className="empty"><span>🚫</span>Staff only. This door is for admins.</div>;
@@ -28,7 +28,7 @@ export default function App() {
   return (
     <>
       <Navbar />
-      <main className="container">
+      <main className="container page-main">
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/found" element={<FoundRoom />} />
@@ -42,12 +42,15 @@ export default function App() {
           <Route path="/admin" element={<RequireLogin admin><Admin /></RequireLogin>} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
-          <Route path="*" element={<div className="empty"><span>🗺️</span>This page got lost too. Try the Found Room?</div>} />
+          <Route path="*" element={<div className="empty"><span>🗺️</span>This page got lost too. <Link to="/found">Check the Found Room?</Link></div>} />
         </Routes>
       </main>
       <footer className="footer">
-        <span>Lost-It · Campus Lost &amp; Found Office</span>
-        <span>Please leave items exactly where you found them. Just kidding, bring them in.</span>
+        <div className="container footer-inner">
+          <Link to="/" className="logo"><span className="logo-tape">Lost-It</span></Link>
+          <span>Made by students, for students who lose stuff (so… everyone).</span>
+          <span className="sticker mint">no phone numbers shared ✌️</span>
+        </div>
       </footer>
     </>
   );

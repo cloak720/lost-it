@@ -1,0 +1,213 @@
+/* =====================================================================
+   BASE: reset, typography, buttons, form fields, chips, utilities
+   ===================================================================== */
+*, *::before, *::after { box-sizing: border-box; }
+html { overflow-x: clip; }
+
+body {
+  margin: 0;
+  font-family: var(--font-ui);
+  font-size: 16px;
+  line-height: 1.55;
+  color: var(--text);
+  background-color: var(--bg);
+  background-image: radial-gradient(var(--bg-dots) 1px, transparent 1.4px);
+  background-size: 18px 18px;
+  overflow-x: clip;
+  transition: background-color 0.35s ease, color 0.35s ease;
+}
+
+img { display: block; max-width: 100%; }
+a { color: var(--found); text-underline-offset: 3px; }
+h1, h2, h3 { margin: 0; line-height: 1.1; letter-spacing: -0.02em; }
+p { margin: 0; }
+
+/* ---------- Text helpers ---------- */
+.label {
+  font: 700 0.72rem var(--font-label);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--text-2);
+}
+.muted, .dim { color: var(--text-2); }
+.center { text-align: center; }
+.small { font-size: 0.85rem; }
+.mono { font-family: var(--font-label); }
+.hand { font-family: var(--font-hand); font-weight: 400; letter-spacing: 0; }
+.error { color: var(--lost); font: 700 0.85rem var(--font-label); }
+.error::before { content: "✗ "; }
+
+/* ---------- Buttons: chunky "keycap" buttons with a coloured edge ---------- */
+.btn {
+  --b-bg: var(--brand);
+  --b-edge: var(--brand-edge);
+  --b-fg: var(--on-brand);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--s2);
+  padding: 11px 20px;
+  border: 0;
+  border-radius: var(--r-md);
+  font: 700 0.95rem var(--font-ui);
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+  color: var(--b-fg);
+  background: var(--b-bg);
+  box-shadow: 0 4px 0 var(--b-edge);
+  transition: transform 0.12s, box-shadow 0.12s, background-color 0.2s;
+}
+.btn:hover { transform: translateY(-2px); box-shadow: 0 6px 0 var(--b-edge); }
+.btn:active { transform: translateY(4px); box-shadow: 0 0 0 var(--b-edge); }
+.btn:focus-visible { outline: 3px solid var(--found); outline-offset: 3px; }
+.btn:disabled { opacity: 0.6; cursor: wait; transform: none; }
+
+.btn-lost  { --b-bg: var(--lost);  --b-edge: var(--lost-edge);  --b-fg: var(--on-lost); }
+.btn-found { --b-bg: var(--found); --b-edge: var(--found-edge); --b-fg: var(--on-found); }
+.btn-soft  { --b-bg: var(--surface-2); --b-edge: var(--line); --b-fg: var(--text); }
+.btn-outline,
+.btn-danger {
+  background: transparent;
+  box-shadow: inset 0 0 0 2px var(--line);
+  color: var(--text);
+}
+.btn-outline:hover { box-shadow: inset 0 0 0 2px var(--text-2); transform: none; }
+.btn-danger { color: var(--lost); box-shadow: inset 0 0 0 2px var(--lost); }
+.btn-danger:hover { background: var(--lost-soft); box-shadow: inset 0 0 0 2px var(--lost); transform: none; }
+.btn-outline:active, .btn-danger:active { transform: translateY(1px); }
+
+.btn-lg { padding: 15px 26px; font-size: 1.05rem; border-radius: var(--r-lg); }
+.btn-sm { padding: 7px 14px; font-size: 0.85rem; border-radius: var(--r-sm); box-shadow: 0 3px 0 var(--b-edge); }
+.btn-xs { padding: 4px 10px; font-size: 0.75rem; border-radius: var(--r-sm); }
+.btn-block { width: 100%; }
+
+/* ---------- Form fields ---------- */
+label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font: 700 0.72rem var(--font-label);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-2);
+}
+input, select, textarea {
+  width: 100%;
+  padding: 11px 14px;
+  font: 1rem var(--font-ui);
+  text-transform: none;
+  letter-spacing: 0;
+  color: var(--text);
+  background: var(--surface);
+  border: 2px solid var(--line);
+  border-radius: var(--r-md);
+  transition: border-color 0.15s, box-shadow 0.15s, background-color 0.35s;
+}
+input::placeholder, textarea::placeholder { color: var(--text-2); opacity: 0.75; }
+input:focus, select:focus, textarea:focus {
+  outline: none;
+  border-color: var(--found);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--found) 22%, transparent);
+}
+input[type="file"] { border-style: dashed; cursor: pointer; background: var(--surface-2); }
+textarea { resize: vertical; }
+
+/* ---------- Chips & stickers ---------- */
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 10px;
+  border-radius: var(--r-pill);
+  font: 700 0.68rem var(--font-label);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  background: var(--surface-3);
+  color: var(--text);
+}
+.chip.lost  { background: var(--lost);  color: var(--on-lost); }
+.chip.found { background: var(--found); color: var(--on-found); }
+.chip.admin { background: var(--brand); color: var(--on-brand); }
+.chip.good  { background: var(--good);  color: #fff; }
+
+.sticker {
+  display: inline-block;
+  padding: 6px 14px;
+  border-radius: var(--r-pill);
+  font: 1rem var(--font-hand);
+  color: #221b15;
+  background: var(--pop);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.18);
+  transform: rotate(-4deg);
+}
+.sticker.mint { background: var(--mint); }
+.sticker.sun { background: var(--brand); }
+
+.badge-count {
+  display: inline-grid;
+  place-items: center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  border-radius: var(--r-pill);
+  background: var(--lost);
+  color: var(--on-lost);
+  font: 700 0.7rem var(--font-label);
+}
+
+/* ---------- Cards & empty states ---------- */
+.card {
+  background: var(--surface);
+  color: var(--text);
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow);
+  transition: background-color 0.35s, border-color 0.35s;
+}
+.empty {
+  margin-top: var(--s5);
+  padding: var(--s7) var(--s5);
+  text-align: center;
+  font-size: 1.1rem;
+  color: var(--text-2);
+  border: 2px dashed var(--line);
+  border-radius: var(--r-lg);
+  background: color-mix(in srgb, var(--surface) 70%, transparent);
+}
+.empty span { display: block; font-size: 2.6rem; margin-bottom: var(--s2); }
+
+/* ---------- Rubber stamps ---------- */
+.stamp {
+  position: absolute;
+  z-index: 4;
+  top: 50%;
+  left: 50%;
+  padding: 2px 12px;
+  white-space: nowrap;
+  pointer-events: none;
+  font: 700 1.2rem var(--font-label);
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  border: 4px double currentColor;
+  border-radius: 6px;
+  transform: translate(-50%, -50%) rotate(-16deg);
+}
+
+/* ---------- Confetti (fired when an item is marked returned) ---------- */
+.confetti {
+  position: fixed;
+  z-index: 999;
+  pointer-events: none;
+  font-size: 1.4rem;
+  animation: confetti 1.3s cubic-bezier(0.2, 0.7, 0.4, 1) forwards;
+}
+@keyframes confetti {
+  0%   { transform: translate(-50%, -50%) scale(0.5); opacity: 1; }
+  60%  { transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) rotate(var(--rot)); opacity: 1; }
+  100% { transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy) + 140px)) rotate(var(--rot)); opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+}

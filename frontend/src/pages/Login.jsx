@@ -26,19 +26,23 @@ export default function Login() {
       <form className="pass" onSubmit={submit}>
         <span className="pass-clip" aria-hidden="true" />
         <div className="pass-head">
-          <span>Lost-It Office</span>
-          <b>Visitor Pass</b>
+          <span>Lost-It · Campus</span>
+          <b>Student Pass</b>
         </div>
         <div className="pass-body">
-          <div className="pass-photo" aria-hidden="true">🙂</div>
-          <label>Email
-            <input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} />
+          <div className="pass-photo" aria-hidden="true">🧑‍🎓</div>
+          <label>College email
+            <input type="email" required autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} />
           </label>
           <label>Password
-            <input type="password" required value={password} onChange={(e) => setPassword(e.target.value)} />
+            <input type="password" required autoComplete="current-password" value={password} onChange={(e) => setPassword(e.target.value)} />
           </label>
           {error && <p className="error">{error}</p>}
-          <button className="btn btn-amber btn-block">Swipe in →</button>
+          <button className="btn btn-block">Swipe in →</button>
+          <button type="button" className="btn btn-outline btn-xs pass-demo"
+            onClick={() => { setEmail("asha@campus.edu"); setPassword("demo1234"); }}>
+            Fill in a demo student
+          </button>
           <p className="pass-foot">
             No pass yet? <Link to="/register" state={location.state}>Get one here</Link>
           </p>

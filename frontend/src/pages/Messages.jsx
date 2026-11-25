@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { api, timeAgo } from "../api.js";
 import { useAuth } from "../AuthContext.jsx";
+import PageHeader from "../components/PageHeader.jsx";
 
 // Group flat messages into chats: one chat per (item, other person).
 function groupChats(messages, myId) {
@@ -51,16 +52,13 @@ export default function Messages() {
         .then(load)
         .catch(() => {});
     }
-  }, [chat?.key, chat?.unread]);
+  }, [chat?.key, chat?.unread]); // eslint-disable-line react-hooks/exhaustive-deps
 
   async function send(e) {
     e.preventDefault();
     setError("");
     try {
-      await api("/messages", {
-        method: "POST",
-        body: { item_id: chat.itemId, receiver_id: chat.otherId, body: reply },
-      });
+      await api("/messages", { method: "POST", body: { item_id: chat.itemId, receiver_id: chat.otherId, body: reply } });
       setReply("");
       await load();
     } catch (err) {
@@ -68,62 +66,59 @@ export default function Messages() {
     }
   }
 
-  if (!messages) return <p className="muted center">Loading…</p>;
-  if (chats.length === 0) {
-    return (
-      <>
-        <h1>Messages</h1>
-        <div className="empty"><span>📭</span>No messages yet. Open any item on the board to start a chat.</div>
-      </>
-    );
-  }
-
   return (
     <>
-      <h1>Messages</h1>
-      <div className="chat-layout">
-        <aside className="card chat-list">
-          {chats.map((c) => (
-            <button
-              key={c.key}
-              className={`chat-row ${c.key === selectedKey ? "active" : ""}`}
-              onClick={() => setParams({ item: c.itemId, with: c.otherId })}
-            >
-              <div className="chat-row-top">
-                <strong>{c.otherName}</strong>
-                {c.unread > 0 && <span className="badge-count">{c.unread}</span>}
-              </div>
-              <span className="small muted">
-                {c.itemType === "lost" ? "Lost" : "Found"}: {c.itemTitle}
-              </span>
-            </button>
-          ))}
-        </aside>
+      <PageHeader
+        kicker="Private · only you and them"
+        title={<>Your <span className="hand">chats</span></>}
+        subtitle="Sort out the handover here. No phone numbers needed."
+      />
 
-        {chat ? (
-          <section className="card chat">
-            <div className="chat-head">
-              <strong>{chat.otherName}</strong>
-              <Link to={`/items/${chat.itemId}`} className="small">about “{chat.itemTitle}” →</Link>
-            </div>
-            <div className="chat-body">
-              {chat.messages.map((m) => (
-                <div key={m.id} className={`bubble ${m.sender_id === user.id ? "me" : "them"}`}>
-                  <p>{m.body}</p>
-                  <span>{timeAgo(m.created_at)}</span>
-                </div>
-              ))}
-            </div>
-            <form className="chat-form" onSubmit={send}>
-              <input required maxLength={1000} placeholder="Write a reply…" value={reply} onChange={(e) => setReply(e.target.value)} />
-              <button className="btn btn-primary">Send</button>
-            </form>
-            {error && <p className="error">{error}</p>}
-          </section>
-        ) : (
-          <p className="muted">Select a conversation.</p>
-        )}
-      </div>
+      {!messages ? (
+        <p className="center muted">Loading chats…</p>
+      ) : chats.length === 0 ? (
+        <div className="empty"><span>📭</span>No messages yet. Open any poster or box item to start a chat.</div>
+      ) : (
+        <div className="chat-layout">
+          <aside className="card chat-list" aria-label="Conversations">
+            {chats.map((c) => (
+              <button key={c.key} className={`chat-row ${c.key === selectedKey ? "active" : ""}`}
+                onClick={() => setParams({ item: c.itemId, with: c.otherId })}>
+                <span className="chat-row-top">
+                  <strong>{c.otherName}</strong>
+                  {c.unread > 0 && <span className="badge-count">{c.unread}</span>}
+                </span>
+                <span className="chat-row-sub">{c.itemType === "lost" ? "📜" : "📦"} {c.itemTitle}</span>
+              </button>
+            ))}
+          </aside>
+
+          {chat ? (
+            <section className="card chat">
+              <div className="chat-head">
+                <strong>{chat.otherName}</strong>
+                <Link to={`/items/${chat.itemId}`}>about “{chat.itemTitle}” →</Link>
+              </div>
+              <div className="chat-body">
+                {chat.messages.map((m) => (
+                  <div key={m.id} className={`bubble ${m.sender_id === user.id ? "me" : "them"}`}>
+                    <p>{m.body}</p>
+                    <span>{timeAgo(m.created_at)}</span>
+                  </div>
+                ))}
+              </div>
+              <form className="chat-form" onSubmit={send}>
+                <input required maxLength={1000} placeholder="Write a reply…" value={reply}
+                  onChange={(e) => setReply(e.target.value)} aria-label="Reply" />
+                <button className="btn">Send</button>
+              </form>
+              {error && <p className="error">{error}</p>}
+            </section>
+          ) : (
+            <p className="muted">Pick a conversation.</p>
+          )}
+        </div>
+      )}
     </>
   );
 }

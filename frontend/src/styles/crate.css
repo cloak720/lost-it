@@ -1,0 +1,233 @@
+/* =====================================================================
+   3D CARDBOARD BOX (pure CSS)
+   Six faces positioned with translateZ/rotate; the lid is two flaps
+   hinged on the top edges. Hover lifts the flaps, items peek out.
+   ===================================================================== */
+.crate-slot {
+  --w: 190px;
+  --h: 128px;
+  --d: 140px;
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  perspective: 1100px;
+  cursor: pointer;
+}
+div.crate-slot { cursor: inherit; }
+button.crate-slot:focus-visible { outline: 3px solid var(--found); outline-offset: -6px; border-radius: var(--r-md); }
+
+.crate {
+  position: relative;
+  width: var(--w);
+  height: var(--h);
+  margin-bottom: 84px;
+  transform-style: preserve-3d;
+  transform: rotateX(-20deg) rotateY(-32deg);
+  transition: transform 0.5s cubic-bezier(0.3, 1.3, 0.5, 1);
+}
+button.crate-slot:hover .crate,
+button.crate-slot:focus-visible .crate,
+.door:hover .crate { transform: rotateX(-26deg) rotateY(-24deg) translateY(-8px); }
+
+/* ---------- faces ---------- */
+.crate-face {
+  position: absolute;
+  top: 0;
+  left: 0;
+  border: 2px solid var(--kraft-edge);
+  background-image: repeating-linear-gradient(90deg, rgba(90, 58, 23, 0.07) 0 2px, transparent 2px 7px);
+}
+.crate-face.front {
+  width: var(--w);
+  height: var(--h);
+  transform: translateZ(calc(var(--d) / 2));
+  background-color: var(--kraft);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 10px;
+}
+.crate-face.back { width: var(--w); height: var(--h); transform: rotateY(180deg) translateZ(calc(var(--d) / 2)); background-color: var(--kraft-dark); }
+.crate-face.right,
+.crate-face.left { width: var(--d); height: var(--h); left: calc((var(--w) - var(--d)) / 2); background-color: var(--kraft-side); }
+.crate-face.right { transform: rotateY(90deg) translateZ(calc(var(--w) / 2)); display: grid; place-items: center; }
+.crate-face.left { transform: rotateY(-90deg) translateZ(calc(var(--w) / 2)); background-color: var(--kraft-dark); }
+.crate-face.bottom {
+  width: var(--w);
+  height: var(--d);
+  top: calc((var(--h) - var(--d)) / 2);
+  transform: rotateX(-90deg) translateZ(calc(var(--h) / 2));
+  background-color: #4a3216;
+}
+
+/* ---------- printing on the box ---------- */
+.crate-label {
+  max-width: 92%;
+  padding: 3px 10px 1px;
+  font: 1.05rem/1.15 var(--font-hand);
+  text-align: center;
+  color: #1b120a;
+  background: var(--tape);
+  transform: rotate(-3deg);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+.crate-count { font: 700 0.62rem var(--font-label); text-transform: uppercase; letter-spacing: 0.12em; color: #3a2410; }
+.crate-print { position: absolute; left: 8px; bottom: 5px; font: 700 0.48rem var(--font-label); text-transform: uppercase; color: rgba(58, 36, 16, 0.6); }
+.crate-fragile {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  padding: 0 4px;
+  font: 700 0.5rem var(--font-label);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: #b8322a;
+  border: 2px solid #b8322a;
+  opacity: 0.85;
+  transform: rotate(8deg);
+}
+.crate-sticker {
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  font-size: 1.6rem;
+  background: #fbf6ea;
+  border: 2px solid var(--kraft-edge);
+  transform: rotate(-10deg);
+}
+
+/* ---------- lid ---------- */
+.crate-top {
+  position: absolute;
+  left: 0;
+  top: calc((var(--h) - var(--d)) / 2);
+  width: var(--w);
+  height: var(--d);
+  transform: rotateX(90deg) translateZ(calc(var(--h) / 2));
+  transform-style: preserve-3d;
+}
+.flap {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  height: 50%;
+  border: 2px solid var(--kraft-edge);
+  background-color: var(--kraft-top);
+  background-image:
+    linear-gradient(90deg, transparent 44%, rgba(232, 214, 168, 0.85) 44% 56%, transparent 56%),
+    repeating-linear-gradient(0deg, rgba(90, 58, 23, 0.07) 0 2px, transparent 2px 7px);
+  transition: transform 0.6s cubic-bezier(0.3, 1.5, 0.5, 1);
+}
+.flap-back { top: 0; transform-origin: top center; }
+.flap-front { bottom: 0; transform-origin: bottom center; }
+
+button.crate-slot:hover .flap-back, .door:hover .flap-back, .crate-slot.peeking .flap-back { transform: rotateX(125deg); }
+button.crate-slot:hover .flap-front, .door:hover .flap-front, .crate-slot.peeking .flap-front { transform: rotateX(-125deg); }
+.crate-slot.is-open .flap-back { transform: rotateX(200deg); }
+.crate-slot.is-open .flap-front { transform: rotateX(-200deg); }
+
+/* ---------- items peeking out ---------- */
+.crate-items { position: absolute; inset: 0; transform-style: preserve-3d; pointer-events: none; }
+.peek {
+  --lift: 0px;
+  position: absolute;
+  top: 14px;
+  width: 58px;
+  height: 72px;
+  padding: 4px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  background: #fffdf6;
+  border: 2px solid #2a1d12;
+  border-radius: 3px;
+  transform: translateZ(var(--z)) translateY(var(--lift)) rotate(var(--r));
+  transition: transform 0.5s cubic-bezier(0.3, 1.6, 0.5, 1);
+}
+.peek img { width: 46px; height: 40px; object-fit: cover; }
+.peek-emoji { font-size: 1.75rem; line-height: 1; }
+.peek-title { font: 700 0.44rem/1.1 var(--font-label); text-transform: uppercase; text-align: center; color: #2a1d12; }
+.peek-0 { left: 12%; --z: 22px; --r: -9deg; }
+.peek-1 { left: 37%; --z: -18px; --r: 4deg; transition-delay: 0.05s; }
+.peek-2 { left: 62%; --z: 6px; --r: 11deg; transition-delay: 0.1s; }
+button.crate-slot:hover .peek, .door:hover .peek, .crate-slot.peeking .peek { --lift: -58px; }
+.crate-slot.is-open .peek { --lift: -105px; }
+.crate-slot.is-open .crate { transform: rotateX(-34deg) rotateY(-20deg) translateY(-14px) scale(1.06); }
+
+.crate-shadow {
+  position: absolute;
+  bottom: 56px;
+  left: 50%;
+  z-index: -1;
+  width: calc(var(--w) * 1.25);
+  height: 30px;
+  transform: translateX(-46%);
+  background: radial-gradient(ellipse at center, rgba(0, 0, 0, 0.45), transparent 70%);
+  pointer-events: none;
+}
+.crate-slot.is-empty .crate { filter: saturate(0.45) brightness(0.8); }
+
+/* ---------- sizes ---------- */
+.crate-slot.hero { --w: 210px; --h: 140px; --d: 150px; }
+.crate-slot.hero .crate { margin-bottom: 122px; }
+.crate-slot.hero .crate-shadow { bottom: 92px; }
+
+.crate-slot.mini { --w: 112px; --h: 76px; --d: 86px; width: 150px; height: 240px; }
+.crate-slot.mini .crate { margin-bottom: 44px; }
+.crate-slot.mini .crate-label { font-size: 0.68rem; padding: 1px 6px; }
+.crate-slot.mini .crate-count,
+.crate-slot.mini .crate-print,
+.crate-slot.mini .crate-fragile,
+.crate-slot.mini .peek-title,
+.crate-slot.mini .peek img { display: none; }
+.crate-slot.mini .crate-sticker { width: 30px; height: 30px; font-size: 1rem; }
+.crate-slot.mini .peek { width: 38px; height: 46px; top: 8px; padding: 2px; }
+.crate-slot.mini .peek-emoji { font-size: 1.1rem; }
+.door:hover .crate-slot.mini .peek { --lift: -34px; }
+.crate-slot.mini .crate-shadow { bottom: 26px; }
+
+/* ---------- Found Room shelves ---------- */
+.shelves {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
+  grid-auto-rows: 290px;
+  justify-items: center;
+  margin-top: var(--s5);
+  background-image: repeating-linear-gradient(to bottom,
+    transparent 0 252px,
+    var(--shelf-top) 252px 258px,
+    var(--shelf-front) 258px 274px,
+    rgba(0, 0, 0, 0.3) 274px 278px,
+    transparent 278px 290px);
+}
+
+@media (max-width: 600px) {
+  .crate-slot:not(.mini):not(.hero) { --w: 150px; --h: 104px; --d: 112px; }
+  .shelves {
+    grid-template-columns: repeat(2, 1fr);
+    grid-auto-rows: 240px;
+    background-image: repeating-linear-gradient(to bottom,
+      transparent 0 204px,
+      var(--shelf-top) 204px 209px,
+      var(--shelf-front) 209px 222px,
+      rgba(0, 0, 0, 0.3) 222px 226px,
+      transparent 226px 240px);
+  }
+  .shelves .crate { margin-bottom: 56px; transform: rotateX(-20deg) rotateY(-26deg) scale(0.82); }
+  .shelves .crate-label { font-size: 0.85rem; }
+  .crate-slot.hero { --w: 160px; --h: 108px; --d: 116px; }
+  .crate-slot.hero .crate { margin-bottom: 88px; }
+}

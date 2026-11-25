@@ -27,24 +27,24 @@ export default function Register() {
       <form className="pass" onSubmit={submit}>
         <span className="pass-clip" aria-hidden="true" />
         <div className="pass-head">
-          <span>Lost-It Office</span>
+          <span>Lost-It · Campus</span>
           <b>New Pass</b>
         </div>
         <div className="pass-body">
           <label>Full name
-            <input required value={form.name} onChange={update("name")} />
+            <input required autoComplete="name" value={form.name} onChange={update("name")} />
           </label>
           <label>College email
-            <input type="email" required value={form.email} onChange={update("email")} />
+            <input type="email" required autoComplete="email" value={form.email} onChange={update("email")} />
           </label>
           <label>Phone (optional)
-            <input value={form.phone} onChange={update("phone")} />
+            <input autoComplete="tel" value={form.phone} onChange={update("phone")} />
           </label>
           <label>Password
-            <input type="password" required minLength={6} value={form.password} onChange={update("password")} />
+            <input type="password" required minLength={6} autoComplete="new-password" value={form.password} onChange={update("password")} />
           </label>
           {error && <p className="error">{error}</p>}
-          <button className="btn btn-amber btn-block">Print my pass →</button>
+          <button className="btn btn-block">Print my pass →</button>
           <p className="pass-foot">
             Already have one? <Link to="/login" state={location.state}>Swipe in</Link>
           </p>

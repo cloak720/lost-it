@@ -3,7 +3,7 @@ import { Link, useParams, useSearchParams } from "react-router-dom";
 import { api } from "../api.js";
 import FoundCard from "../components/FoundCard.jsx";
 
-// The catalogue you see after opening a box (or searching all boxes).
+// The catalogue you see after opening a box (or searching every box).
 export default function FoundBox() {
   const { cat } = useParams();
   const [params, setParams] = useSearchParams();
@@ -34,7 +34,7 @@ export default function FoundBox() {
   const label = cat === "all" ? "Every box" : category ? category.name : "…";
 
   return (
-    <div className="room room-open">
+    <div className="scene scene-room">
       <Link to="/found" className="back">← Back to the shelves</Link>
 
       <header className="box-head">
@@ -42,23 +42,21 @@ export default function FoundBox() {
           <span className="rim-flap l" /><span className="rim-flap r" />
         </div>
         <div className="box-head-text">
-          <span className="tape-label">{category?.icon} {label}</span>
-          <p className="lead">
-            {items ? `${items.length} item${items.length === 1 ? "" : "s"} in here.` : "Opening…"} Recognise something? Open it and claim it.
-          </p>
+          <h1 className="tape-label">{category?.icon} {label}</h1>
+          <p>{items ? `${items.length} item${items.length === 1 ? "" : "s"} in here.` : "Opening…"} Recognise something? Open it and claim it.</p>
         </div>
       </header>
 
       <div className="toolbar">
-        <form onSubmit={(e) => { e.preventDefault(); setFilter("q", search.trim()); }} className="toolbar-search">
-          <input placeholder="Search this box…" value={search} onChange={(e) => setSearch(e.target.value)} />
-          <button className="btn btn-amber btn-sm">Search</button>
+        <form className="toolbar-search" onSubmit={(e) => { e.preventDefault(); setFilter("q", search.trim()); }}>
+          <input placeholder="Search this box…" value={search} onChange={(e) => setSearch(e.target.value)} aria-label="Search this box" />
+          <button className="btn btn-sm">Search</button>
         </form>
-        <select value={params.get("location") || ""} onChange={(e) => setFilter("location", e.target.value)}>
+        <select value={params.get("location") || ""} onChange={(e) => setFilter("location", e.target.value)} aria-label="Where it was found">
           <option value="">Found anywhere</option>
           {meta.locations.map((l) => <option key={l.id} value={l.id}>{l.name}</option>)}
         </select>
-        <select value={params.get("status") || "open"} onChange={(e) => setFilter("status", e.target.value === "open" ? "" : e.target.value)}>
+        <select value={params.get("status") || "open"} onChange={(e) => setFilter("status", e.target.value === "open" ? "" : e.target.value)} aria-label="Status">
           <option value="open">Unclaimed</option>
           <option value="resolved">Already claimed</option>
           <option value="all">Everything</option>

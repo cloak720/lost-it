@@ -1,0 +1,131 @@
+/* =====================================================================
+   DESIGN TOKENS
+   Fonts, spacing and the two colour themes.
+   The theme is chosen by <html data-theme="light|dark"> (see ThemeToggle).
+   ===================================================================== */
+:root {
+  /* Fonts */
+  --font-ui: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --font-label: "Space Mono", ui-monospace, Consolas, monospace;
+  --font-hand: "Permanent Marker", "Segoe Print", cursive;
+  --font-western: "Rye", Georgia, serif;
+  --font-old: "IM Fell English", Georgia, serif;
+
+  /* Spacing scale */
+  --s1: 4px;
+  --s2: 8px;
+  --s3: 12px;
+  --s4: 16px;
+  --s5: 24px;
+  --s6: 32px;
+  --s7: 48px;
+  --s8: 72px;
+
+  /* Shapes */
+  --r-sm: 8px;
+  --r-md: 14px;
+  --r-lg: 22px;
+  --r-pill: 999px;
+  --container: 1200px;
+  --nav-h: 70px;
+
+  /* Physical props: cardboard, tape, parchment. Same in both themes. */
+  --kraft-top: #ddb576;
+  --kraft: #cf9f60;
+  --kraft-side: #a97636;
+  --kraft-dark: #7d5527;
+  --kraft-edge: #5a3a17;
+  --tape: #f1e6c4;
+  --manila: #ecd29a;
+  --poster-ink: #3b2412;
+  --poster-red: #8c2318;
+}
+
+/* ---------------------------------------------------------------------
+   ☀️ DAY SHIFT: warm notebook paper, sunny yellow, coral & cobalt
+   --------------------------------------------------------------------- */
+:root,
+:root[data-theme="light"] {
+  color-scheme: light;
+
+  --bg: #fbf6ec;
+  --bg-dots: rgba(70, 45, 20, 0.08);
+  --surface: #ffffff;
+  --surface-2: #f6efe2;
+  --surface-3: #ece2cf;
+  --text: #221b15;
+  --text-2: #6b5f52;
+  --line: #e7dcc9;
+
+  --brand: #ffc83d;   --brand-edge: #c9921a; --on-brand: #221b15;
+  --lost: #d93a3f;    --lost-edge: #9f2328;  --on-lost: #ffffff; --lost-soft: #fde4e1;
+  --found: #2f6fdb;   --found-edge: #1d4c9f; --on-found: #ffffff; --found-soft: #e2ecff;
+  --good: #1d8a5b;
+  --pop: #ff7eb0;     /* sticker pink */
+  --mint: #4cc9a4;    /* sticker mint */
+
+  --shadow: 0 10px 26px rgba(80, 50, 20, 0.1);
+  --shadow-lg: 0 22px 50px rgba(80, 50, 20, 0.18);
+
+  /* Found Room: sunlit storeroom */
+  --room-bg:
+    linear-gradient(112deg, transparent 0 18%, rgba(255, 255, 255, 0.6) 18% 27%, transparent 27% 34%, rgba(255, 255, 255, 0.4) 34% 38%, transparent 38%),
+    radial-gradient(rgba(90, 70, 40, 0.09) 1px, transparent 1.5px),
+    linear-gradient(#f4eee2, #e4d9c3);
+  --room-bg-size: auto, 8px 8px, auto;
+  --shelf-top: #d0a26a;
+  --shelf-front: #a2733e;
+
+  /* Wanted Board: campus cork notice board */
+  --wall-bg:
+    radial-gradient(ellipse 70% 60% at 50% 0%, rgba(255, 243, 220, 0.55), transparent 70%),
+    radial-gradient(rgba(110, 62, 20, 0.33) 1px, transparent 1.7px),
+    radial-gradient(rgba(255, 236, 200, 0.45) 1px, transparent 1.6px),
+    linear-gradient(#ddb07a, #cd9a5e);
+  --wall-bg-size: auto, 9px 9px, 13px 13px, auto;
+  --wall-frame: inset 0 12px 0 #8b5a2b, inset 0 -12px 0 #8b5a2b;
+}
+
+/* ---------------------------------------------------------------------
+   🌙 NIGHT SHIFT: late-night library, indigo sky, lamp glow
+   --------------------------------------------------------------------- */
+:root[data-theme="dark"] {
+  color-scheme: dark;
+
+  --bg: #11132a;
+  --bg-dots: rgba(190, 200, 255, 0.08);
+  --surface: #1b1f3f;
+  --surface-2: #232850;
+  --surface-3: #2d3363;
+  --text: #eef0ff;
+  --text-2: #a8addb;
+  --line: #31376b;
+
+  --brand: #ffd34d;   --brand-edge: #b38a12; --on-brand: #1a1530;
+  --lost: #ea5a5a;    --lost-edge: #a33636;  --on-lost: #1a1530; --lost-soft: #3a2146;
+  --found: #4a8de8;   --found-edge: #2a5fae; --on-found: #0f1430; --found-soft: #1c2d5c;
+  --good: #4fd69c;
+  --pop: #ff8fc8;
+  --mint: #6ee7c8;
+
+  --shadow: 0 12px 30px rgba(0, 0, 0, 0.35);
+  --shadow-lg: 0 26px 60px rgba(0, 0, 0, 0.5);
+
+  /* Found Room: one warm bulb in a dark storeroom */
+  --room-bg:
+    radial-gradient(ellipse 55% 60% at 50% 0%, rgba(255, 196, 110, 0.28), transparent 70%),
+    radial-gradient(rgba(200, 210, 255, 0.06) 1px, transparent 1.5px),
+    linear-gradient(#1c1f3f, #121430);
+  --room-bg-size: auto, 8px 8px, auto;
+  --shelf-top: #6e4c2d;
+  --shelf-front: #47311c;
+
+  /* Wanted Board: wooden wall lit by a lantern */
+  --wall-bg:
+    radial-gradient(ellipse 60% 55% at 50% 0%, rgba(255, 190, 110, 0.2), transparent 70%),
+    repeating-linear-gradient(90deg, rgba(0, 0, 0, 0.45) 0 3px, transparent 3px 140px),
+    repeating-linear-gradient(90deg, transparent 0 23px, rgba(255, 230, 190, 0.035) 23px 25px, transparent 25px 140px),
+    linear-gradient(#4a2f1a, #2a1a0d);
+  --wall-bg-size: auto, auto, auto, auto;
+  --wall-frame: inset 0 30px 50px -20px rgba(0, 0, 0, 0.6);
+}

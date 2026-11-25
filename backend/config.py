@@ -18,6 +18,11 @@ class Config:
     MYSQL_PASSWORD = os.getenv("MYSQL_PASSWORD", "")
     MYSQL_DATABASE = os.getenv("MYSQL_DATABASE", "lost_it")
 
+    # The admin account created by seed.py (kept in .env so it never goes to GitHub)
+    ADMIN_NAME = os.getenv("ADMIN_NAME", "admin1")
+    ADMIN_EMAIL = os.getenv("ADMIN_EMAIL", "admin1@campus.edu").strip().lower()
+    ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD", "")
+
     UPLOAD_FOLDER = os.path.join(BASE_DIR, "uploads")
     MAX_CONTENT_LENGTH = 5 * 1024 * 1024  # 5 MB per upload
     ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg", "gif", "webp"}

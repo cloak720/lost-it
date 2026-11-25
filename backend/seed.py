@@ -1,24 +1,28 @@
-"""Add demo users, items and messages so the app looks alive during a demo.
+"""Add demo users, items and messages so the app looks alive during a demo,
+and create (or update) the admin account from the values in .env.
 
 Usage:  python seed.py   (run after init_db.py)
-All demo accounts use the password:  demo1234
+Demo student accounts use the password:  demo1234
+The admin's name, email and password come from ADMIN_NAME / ADMIN_EMAIL / ADMIN_PASSWORD in .env
 """
 from datetime import date, timedelta
 
 from werkzeug.security import generate_password_hash
 
+from config import Config
 from db import connect
 
-# (name, email, phone, role)
-USERS = [
-    ("Asha Menon", "asha@campus.edu", "9800000001", "user"),
-    ("Rahul Nair", "rahul@campus.edu", "9800000002", "user"),
-    ("Fathima K", "fathima@campus.edu", "9800000003", "user"),
-    ("Arjun Das", "arjun@campus.edu", None, "user"),
-    ("Campus Admin", "admin@campus.edu", None, "admin"),
+DEMO_PASSWORD = "demo1234"
+
+# (name, email, phone)
+STUDENTS = [
+    ("Asha Menon", "asha@campus.edu", "9800000001"),
+    ("Rahul Nair", "rahul@campus.edu", "9800000002"),
+    ("Fathima K", "fathima@campus.edu", "9800000003"),
+    ("Arjun Das", "arjun@campus.edu", None),
 ]
 
-# (user index, type, title, description, category, location, days ago, status, reward)
+# (student index, type, title, description, category, location, days ago, status, reward)
 ITEMS = [
     (0, "lost", "Black JBL wireless earphones", "Black JBL earbuds in a small black case. Left them on a reading table.", "Electronics", "Main Library", 2, "open", "₹500"),
     (1, "found", "Black wireless earbuds in case", "Found black earbuds with a charging case on a table near the window.", "Electronics", "Main Library", 1, "open", None),
@@ -45,48 +49,72 @@ MESSAGES = [
 ]
 
 
-def seed():
-    conn = connect()
-    with conn.cursor() as cur:
-        cur.execute("SELECT id, name FROM categories")
-        categories = {r["name"]: r["id"] for r in cur.fetchall()}
-        cur.execute("SELECT id, name FROM locations")
-        locations = {r["name"]: r["id"] for r in cur.fetchall()}
+def seed_demo_data(cur):
+    cur.execute("SELECT id FROM users WHERE email = %s", (STUDENTS[0][1],))
+    if cur.fetchone():
+        print("Demo students already exist, skipping demo data. (Run init_db.py first to reset.)")
+        return
 
-        cur.execute("SELECT id FROM users WHERE email = %s", (USERS[0][1],))
-        if cur.fetchone():
-            print("Demo data already exists, skipping. Run init_db.py first to reset.")
-            return
+    cur.execute("SELECT id, name FROM categories")
+    categories = {r["name"]: r["id"] for r in cur.fetchall()}
+    cur.execute("SELECT id, name FROM locations")
+    locations = {r["name"]: r["id"] for r in cur.fetchall()}
 
-        password = generate_password_hash("demo1234")
-        user_ids = []
-        for name, email, phone, role in USERS:
-            cur.execute(
-                "INSERT INTO users (name, email, password_hash, phone, role) VALUES (%s, %s, %s, %s, %s)",
-                (name, email, password, phone, role),
-            )
-            user_ids.append(cur.lastrowid)
+    password = generate_password_hash(DEMO_PASSWORD)
+    user_ids = []
+    for name, email, phone in STUDENTS:
+        cur.execute(
+            "INSERT INTO users (name, email, password_hash, phone) VALUES (%s, %s, %s, %s)",
+            (name, email, password, phone),
+        )
+        user_ids.append(cur.lastrowid)
 
-        item_ids = []
-        for user, kind, title, desc, cat, loc, days_ago, status, reward in ITEMS:
-            cur.execute(
-                """INSERT INTO items (user_id, type, title, description, category_id, location_id,
-                                      item_date, status, reward)
-                   VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)""",
-                (user_ids[user], kind, title, desc, categories[cat], locations[loc],
-                 date.today() - timedelta(days=days_ago), status, reward),
-            )
-            item_ids.append(cur.lastrowid)
+    item_ids = []
+    for user, kind, title, desc, cat, loc, days_ago, status, reward in ITEMS:
+        cur.execute(
+            """INSERT INTO items (user_id, type, title, description, category_id, location_id,
+                                  item_date, status, reward)
+               VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)""",
+            (user_ids[user], kind, title, desc, categories[cat], locations[loc],
+             date.today() - timedelta(days=days_ago), status, reward),
+        )
+        item_ids.append(cur.lastrowid)
 
-        for item, sender, receiver, body in MESSAGES:
-            cur.execute(
-                "INSERT INTO messages (item_id, sender_id, receiver_id, body) VALUES (%s, %s, %s, %s)",
-                (item_ids[item], user_ids[sender], user_ids[receiver], body),
-            )
-    conn.close()
-    print(f"Added {len(USERS)} users, {len(ITEMS)} items and {len(MESSAGES)} messages.")
-    print("Log in with any demo email (e.g. asha@campus.edu, admin@campus.edu) and password: demo1234")
+    for item, sender, receiver, body in MESSAGES:
+        cur.execute(
+            "INSERT INTO messages (item_id, sender_id, receiver_id, body) VALUES (%s, %s, %s, %s)",
+            (item_ids[item], user_ids[sender], user_ids[receiver], body),
+        )
+    print(f"Added {len(STUDENTS)} students, {len(ITEMS)} items and {len(MESSAGES)} messages "
+          f"(student password: {DEMO_PASSWORD}).")
+
+
+def ensure_admin(cur):
+    """Create the admin from .env, or update its name/password if it already exists."""
+    if len(Config.ADMIN_PASSWORD) < 6:
+        print("ADMIN_PASSWORD is missing (or shorter than 6 characters) in .env, so no admin was created.")
+        return
+
+    password_hash = generate_password_hash(Config.ADMIN_PASSWORD)
+    cur.execute("SELECT id FROM users WHERE email = %s", (Config.ADMIN_EMAIL,))
+    existing = cur.fetchone()
+    if existing:
+        cur.execute(
+            "UPDATE users SET name = %s, password_hash = %s, role = 'admin', is_active = TRUE WHERE id = %s",
+            (Config.ADMIN_NAME, password_hash, existing["id"]),
+        )
+        print(f"Updated admin '{Config.ADMIN_NAME}' <{Config.ADMIN_EMAIL}>.")
+    else:
+        cur.execute(
+            "INSERT INTO users (name, email, password_hash, role) VALUES (%s, %s, %s, 'admin')",
+            (Config.ADMIN_NAME, Config.ADMIN_EMAIL, password_hash),
+        )
+        print(f"Created admin '{Config.ADMIN_NAME}' <{Config.ADMIN_EMAIL}>.")
 
 
 if __name__ == "__main__":
-    seed()
+    conn = connect()
+    with conn.cursor() as cursor:
+        seed_demo_data(cursor)
+        ensure_admin(cursor)
+    conn.close()
