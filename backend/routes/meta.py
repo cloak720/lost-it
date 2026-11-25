@@ -1,7 +1,8 @@
-"""Lookup lists for forms and simple stats for the home page."""
+"""Lookup lists for forms, home page stats, and the Found Room shelves."""
 from flask import Blueprint, jsonify
 
 from db import query
+from routes.items import ITEM_SELECT, to_json
 
 bp = Blueprint("meta", __name__)
 
@@ -32,3 +33,21 @@ def stats():
         resolved=int(row["resolved"]),
         users=users,
     )
+
+
+@bp.get("/found-room")
+def found_room():
+    """One box per category: how many open found items it holds + a few to peek at."""
+    boxes = query(
+        """SELECT c.id, c.name, c.icon, COUNT(i.id) AS count
+           FROM categories c
+           LEFT JOIN items i
+                  ON i.category_id = c.id AND i.type = 'found' AND i.status = 'open'
+           GROUP BY c.id, c.name, c.icon
+           ORDER BY count DESC, c.id"""
+    )
+    found = query(ITEM_SELECT + " WHERE i.type = 'found' AND i.status = 'open' ORDER BY i.created_at DESC")
+    for box in boxes:
+        box["count"] = int(box["count"])
+        box["previews"] = [to_json(r) for r in found if r["category_id"] == box["id"]][:3]
+    return jsonify(boxes=boxes)

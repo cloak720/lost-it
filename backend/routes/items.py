@@ -3,16 +3,16 @@ import os
 import uuid
 from datetime import date
 
-from flask import Blueprint, current_app, jsonify, request
-from flask_jwt_extended import get_jwt_identity, jwt_required
+from flask import Blueprint, current_app, g, jsonify, request
 
+from auth_utils import is_admin, user_required
 from db import execute, query
 from routes.matching import rank_matches
 
 bp = Blueprint("items", __name__)
 
 ITEM_SELECT = """
-    SELECT i.id, i.type, i.title, i.description, i.item_date, i.image, i.status,
+    SELECT i.id, i.type, i.title, i.description, i.item_date, i.image, i.reward, i.status,
            i.created_at, i.user_id, u.name AS owner_name,
            c.id AS category_id, c.name AS category, c.icon AS category_icon,
            l.id AS location_id, l.name AS location
@@ -37,8 +37,9 @@ def get_item(item_id):
     return query(ITEM_SELECT + " WHERE i.id = %s", (item_id,), one=True)
 
 
-def current_user_id():
-    return int(get_jwt_identity())
+def can_manage(item):
+    """The person who posted an item, or any admin, may close or delete it."""
+    return item["user_id"] == g.user["id"] or is_admin()
 
 
 def save_image(file):
@@ -76,7 +77,7 @@ def list_items():
         where.append("(i.title LIKE %s OR i.description LIKE %s)")
         args += [f"%{search}%", f"%{search}%"]
 
-    limit = min(request.args.get("limit", 60, type=int), 100)
+    limit = min(request.args.get("limit", 60, type=int), 200)
     sql = ITEM_SELECT
     if where:
         sql += " WHERE " + " AND ".join(where)
@@ -86,10 +87,10 @@ def list_items():
 
 
 @bp.get("/mine")
-@jwt_required()
+@user_required
 def my_items():
     rows = query(ITEM_SELECT + " WHERE i.user_id = %s ORDER BY i.created_at DESC, i.id DESC",
-                 (current_user_id(),))
+                 (g.user["id"],))
     return jsonify(items=[to_json(r) for r in rows])
 
 
@@ -122,12 +123,13 @@ def item_matches(item_id):
 
 
 @bp.post("")
-@jwt_required()
+@user_required
 def create_item():
     form = request.form
     item_type = form.get("type")
     title = (form.get("title") or "").strip()
     description = (form.get("description") or "").strip()
+    reward = (form.get("reward") or "").strip() or None
     category_id = form.get("category_id", type=int)
     location_id = form.get("location_id", type=int)
 
@@ -145,6 +147,10 @@ def create_item():
         return jsonify(error="Enter a valid date"), 400
     if item_date > date.today():
         return jsonify(error="Date cannot be in the future"), 400
+    if item_type == "found":
+        reward = None  # only lost items carry a reward
+    elif reward and len(reward) > 60:
+        return jsonify(error="Keep the reward under 60 characters"), 400
 
     image = None
     file = request.files.get("image")
@@ -154,21 +160,21 @@ def create_item():
             return jsonify(error="Image must be PNG, JPG, GIF or WEBP"), 400
 
     item_id = execute(
-        """INSERT INTO items (user_id, type, title, description, category_id, location_id, item_date, image)
-           VALUES (%s, %s, %s, %s, %s, %s, %s, %s)""",
-        (current_user_id(), item_type, title, description, category_id, location_id, item_date, image),
+        """INSERT INTO items (user_id, type, title, description, category_id, location_id, item_date, image, reward)
+           VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)""",
+        (g.user["id"], item_type, title, description, category_id, location_id, item_date, image, reward),
     )
     return jsonify(item=to_json(get_item(item_id))), 201
 
 
 @bp.patch("/<int:item_id>/status")
-@jwt_required()
+@user_required
 def update_status(item_id):
     item = get_item(item_id)
     if not item:
         return jsonify(error="Item not found"), 404
-    if item["user_id"] != current_user_id():
-        return jsonify(error="Only the owner can change this item"), 403
+    if not can_manage(item):
+        return jsonify(error="Only the owner or an admin can change this item"), 403
 
     status = (request.get_json(silent=True) or {}).get("status")
     if status not in ("open", "resolved"):
@@ -178,13 +184,13 @@ def update_status(item_id):
 
 
 @bp.delete("/<int:item_id>")
-@jwt_required()
+@user_required
 def delete_item(item_id):
     item = get_item(item_id)
     if not item:
         return jsonify(error="Item not found"), 404
-    if item["user_id"] != current_user_id():
-        return jsonify(error="Only the owner can delete this item"), 403
+    if not can_manage(item):
+        return jsonify(error="Only the owner or an admin can delete this item"), 403
 
     execute("DELETE FROM items WHERE id = %s", (item_id,))
     if item["image"]:

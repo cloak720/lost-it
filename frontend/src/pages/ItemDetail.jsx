@@ -2,7 +2,9 @@ import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { api, formatDate } from "../api.js";
 import { useAuth } from "../AuthContext.jsx";
-import ItemCard, { ItemImage } from "../components/ItemCard.jsx";
+import FoundCard, { caseNo } from "../components/FoundCard.jsx";
+import WantedPoster from "../components/WantedPoster.jsx";
+import MatchBadge from "../components/MatchBadge.jsx";
 
 export default function ItemDetail() {
   const { id } = useParams();
@@ -22,11 +24,12 @@ export default function ItemDetail() {
   }, [id]);
 
   if (error && !item) return <div className="empty"><span>🕵️</span>{error}</div>;
-  if (!item) return <p className="muted center">Loading…</p>;
+  if (!item) return <p className="center dim">Pulling the case file…</p>;
 
-  const isOwner = user && user.id === item.user_id;
   const lost = item.type === "lost";
   const resolved = item.status === "resolved";
+  const isOwner = user && user.id === item.user_id;
+  const isAdmin = user && user.role === "admin";
 
   async function sendMessage(e) {
     e.preventDefault();
@@ -41,71 +44,64 @@ export default function ItemDetail() {
   }
 
   async function toggleStatus() {
-    const status = resolved ? "open" : "resolved";
-    const d = await api(`/items/${item.id}/status`, { method: "PATCH", body: { status } });
+    const d = await api(`/items/${item.id}/status`, { method: "PATCH", body: { status: resolved ? "open" : "resolved" } });
     setItem(d.item);
   }
 
   async function remove() {
-    if (!window.confirm("Take this item off the board for good?")) return;
+    if (!window.confirm("Take this item down for good? This can't be undone.")) return;
     await api(`/items/${item.id}`, { method: "DELETE" });
-    navigate("/my-items");
+    navigate(isOwner ? "/my-items" : lost ? "/wanted" : "/found");
   }
 
   return (
-    <>
-      <Link to="/browse" className="back">← Back to the board</Link>
+    <div className={lost ? "wall wall-tight" : "room room-tight"}>
+      <Link to={lost ? "/wanted" : `/found/${item.category_id}`} className="back">
+        ← {lost ? "Back to the Wanted Board" : `Back to the ${item.category} box`}
+      </Link>
 
       <div className="detail">
-        <div className={`polaroid ${resolved ? "is-resolved" : ""}`}>
-          <span className="tape" aria-hidden="true" />
-          <div className="photo">
-            <ItemImage item={item} className="detail-img" />
-            {resolved && <span className="returned-stamp">Returned ✓</span>}
-          </div>
-          <p className="caption">{item.category_icon} {item.title}</p>
+        <div className="detail-art">
+          {lost ? <WantedPoster item={item} as="div" size="big" /> : <FoundCard item={item} as="div" size="big" />}
         </div>
 
-        <div className={`poster poster-${item.type}`}>
-          <div className="poster-head">{lost ? "Missing" : "Found"}</div>
-          <div className="poster-body">
+        <div className="case-file">
+          <div className="case-tab">Case No. {caseNo(item.id)}</div>
+          <div className="case-body">
+            <span className={`case-type ${item.type}`}>{lost ? "Missing item" : "Found item"}</span>
             <h1>{item.title}</h1>
             <dl className="facts">
-              <dt>What</dt><dd>{item.category_icon} {item.category}</dd>
-              <dt>Where</dt><dd>📍 {item.location}</dd>
-              <dt>{lost ? "Lost on" : "Found on"}</dt><dd>{formatDate(item.item_date)}</dd>
-              <dt>Pinned by</dt><dd>{isOwner ? "You" : item.owner_name}</dd>
-              <dt>Status</dt><dd>{resolved ? "✅ Back with its owner" : "🔎 Still looking"}</dd>
+              <dt>Category</dt><dd>{item.category_icon} {item.category}</dd>
+              <dt>{lost ? "Last seen" : "Found at"}</dt><dd>📍 {item.location}</dd>
+              <dt>Date</dt><dd>{formatDate(item.item_date)}</dd>
+              {lost && <><dt>Reward</dt><dd>💰 {item.reward || "Eternal gratitude"}</dd></>}
+              <dt>Reported by</dt><dd>{isOwner ? "You" : item.owner_name}</dd>
+              <dt>Status</dt><dd>{resolved ? "✅ Case closed" : "🔎 Open case"}</dd>
             </dl>
-            {item.description && <p className="description">{item.description}</p>}
+            {item.description && <p className="typed-note">{item.description}</p>}
 
-            {isOwner ? (
+            {(isOwner || isAdmin) && (
               <div className="owner-actions">
-                <button className="btn btn-found" onClick={toggleStatus}>
-                  {resolved ? "↺ Reopen item" : "🎉 Mark as returned"}
+                {!isOwner && <span className="admin-chip">★ Admin controls</span>}
+                <button className="btn btn-blue" onClick={toggleStatus}>
+                  {resolved ? "↺ Reopen case" : "✔ Mark as returned"}
                 </button>
-                <button className="btn btn-danger" onClick={remove}>Delete</button>
+                <button className="btn btn-ghost-dark" onClick={remove}>Delete</button>
               </div>
-            ) : !resolved && (
+            )}
+
+            {!isOwner && !resolved && (
               user ? (
                 <form onSubmit={sendMessage} className="contact">
-                  <label>{lost ? "Found it? Tell them 👋" : "Is this yours? Message the finder 👋"}</label>
-                  <textarea
-                    required
-                    maxLength={1000}
-                    rows={3}
-                    placeholder={lost ? "Where did you find it? Where can they pick it up?" : "Describe something only the owner would know…"}
-                    value={message}
-                    onChange={(e) => setMessage(e.target.value)}
-                  />
-                  <button className="btn btn-primary" disabled={sending}>
-                    {sending ? "Sending…" : "Send message →"}
-                  </button>
+                  <label>{lost ? "Seen it? Tell the owner" : "Is this yours? Message the finder"}</label>
+                  <textarea required maxLength={1000} rows={3} value={message} onChange={(e) => setMessage(e.target.value)}
+                    placeholder={lost ? "Where did you see or find it?" : "Describe something only the owner would know…"} />
+                  <button className="btn btn-amber" disabled={sending}>{sending ? "Sending…" : "Send message →"}</button>
                   {error && <p className="error">{error}</p>}
                 </form>
               ) : (
                 <p className="login-hint">
-                  <Link to="/login" state={{ from: `/items/${item.id}` }}>Log in</Link> to message {item.owner_name} ✉️
+                  <Link to="/login" state={{ from: `/items/${item.id}` }}>Log in</Link> to message {item.owner_name}.
                 </p>
               )
             )}
@@ -114,34 +110,22 @@ export default function ItemDetail() {
       </div>
 
       {!resolved && (
-        <section>
-          <div className="section-head">
-            <h2><span className="highlight">{lost ? "Could it be one of these?" : "Who might own this?"}</span></h2>
-          </div>
-          <p className="page-sub">matched on category, place, date &amp; description</p>
+        <section className="matches">
+          <h2 className="section-title">{lost ? "Possible sightings in the Found Room" : "Wanted posters that might match"}</h2>
+          <p className="dim">Scored on category, place, date and description.</p>
           {matches.length === 0 ? (
-            <div className="empty"><span>🧐</span>No matches yet. We'll pin them here as soon as one turns up.</div>
+            <div className="empty"><span>🧐</span>No matches yet. They'll show up here as soon as one does.</div>
+          ) : lost ? (
+            <div className="found-grid">
+              {matches.map((m) => <FoundCard key={m.item.id} item={m.item} extra={<MatchBadge match={m} />} />)}
+            </div>
           ) : (
-            <div className="grid">
-              {matches.map((m) => (
-                <ItemCard
-                  key={m.item.id}
-                  item={m.item}
-                  extra={
-                    <div className="match">
-                      <div className={`match-score ${m.score >= 85 ? "hot" : ""}`}>
-                        <b>{m.score}%</b>
-                        <span>match</span>
-                      </div>
-                      <ul>{m.reasons.map((r) => <li key={r}>{r}</li>)}</ul>
-                    </div>
-                  }
-                />
-              ))}
+            <div className="poster-grid">
+              {matches.map((m) => <WantedPoster key={m.item.id} item={m.item} extra={<MatchBadge match={m} />} />)}
             </div>
           )}
         </section>
       )}
-    </>
+    </div>
   );
 }

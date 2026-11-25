@@ -15,6 +15,8 @@ CREATE TABLE users (
     email         VARCHAR(150) NOT NULL UNIQUE,
     password_hash VARCHAR(255) NOT NULL,
     phone         VARCHAR(20),
+    role          ENUM('user', 'admin') NOT NULL DEFAULT 'user',
+    is_active     BOOLEAN NOT NULL DEFAULT TRUE,
     created_at    TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
@@ -39,6 +41,7 @@ CREATE TABLE items (
     location_id INT NOT NULL,
     item_date   DATE NOT NULL,
     image       VARCHAR(255),
+    reward      VARCHAR(60),
     status      ENUM('open', 'resolved') NOT NULL DEFAULT 'open',
     created_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id)     REFERENCES users(id) ON DELETE CASCADE,

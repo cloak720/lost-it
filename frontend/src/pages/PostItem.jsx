@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { api } from "../api.js";
+import FoundCard from "../components/FoundCard.jsx";
+import WantedPoster from "../components/WantedPoster.jsx";
 
 function today() {
   const d = new Date();
@@ -19,6 +21,7 @@ export default function PostItem() {
     location_id: "",
     item_date: today(),
     description: "",
+    reward: "",
   });
   const [image, setImage] = useState(null);
   const [preview, setPreview] = useState("");
@@ -29,9 +32,7 @@ export default function PostItem() {
     api("/meta").then(setMeta).catch(() => {});
   }, []);
 
-  function update(field) {
-    return (e) => setForm({ ...form, [field]: e.target.value });
-  }
+  const update = (field) => (e) => setForm({ ...form, [field]: e.target.value });
 
   function pickImage(e) {
     const file = e.target.files[0];
@@ -56,18 +57,39 @@ export default function PostItem() {
   }
 
   const lost = form.type === "lost";
+  const category = meta.categories.find((c) => String(c.id) === form.category_id);
+  const location = meta.locations.find((l) => String(l.id) === form.location_id);
+
+  // A live preview of the poster / claim tag, built from what's typed so far.
+  const draft = {
+    id: 0,
+    type: form.type,
+    status: "open",
+    title: form.title || (lost ? "Your lost item" : "The thing you found"),
+    location: location?.name || "somewhere on campus",
+    item_date: form.item_date || today(),
+    reward: form.reward,
+    category_icon: category?.icon || (lost ? "❓" : "📦"),
+    image_url: preview || null,
+  };
 
   return (
-    <div className="narrow">
-      <h1>Pin it on the board</h1>
-      <p className="page-sub">the more detail you add, the better the matches</p>
-      <form className="card form" onSubmit={submit}>
+    <div className="post-layout">
+      <form className="paper-form" onSubmit={submit}>
+        <div className="form-head">
+          <span>Lost &amp; Found Office</span>
+          <span>Form LF-1</span>
+        </div>
+        <h1>{lost ? "Report a lost item" : "Hand in a found item"}</h1>
+
         <div className="type-toggle">
           <button type="button" className={lost ? "active lost" : ""} onClick={() => setForm({ ...form, type: "lost" })}>
-            <span className="emoji">😩</span> I lost something
+            <span className="emoji">📜</span> I lost something
+            <small>Put up a Wanted poster</small>
           </button>
           <button type="button" className={!lost ? "active found" : ""} onClick={() => setForm({ ...form, type: "found" })}>
-            <span className="emoji">🙌</span> I found something
+            <span className="emoji">📦</span> I found something
+            <small>Drop it in a Found Room box</small>
           </button>
         </div>
 
@@ -83,7 +105,7 @@ export default function PostItem() {
               {meta.categories.map((c) => <option key={c.id} value={c.id}>{c.icon} {c.name}</option>)}
             </select>
           </label>
-          <label>{lost ? "Where did you lose it?" : "Where did you find it?"}
+          <label>{lost ? "Last seen at" : "Found at"}
             <select required value={form.location_id} onChange={update("location_id")}>
               <option value="">Choose…</option>
               {meta.locations.map((l) => <option key={l.id} value={l.id}>{l.name}</option>)}
@@ -91,25 +113,36 @@ export default function PostItem() {
           </label>
         </div>
 
-        <label>{lost ? "Date lost" : "Date found"}
-          <input type="date" required max={today()} value={form.item_date} onChange={update("item_date")} />
-        </label>
+        <div className="row">
+          <label>{lost ? "Date lost" : "Date found"}
+            <input type="date" required max={today()} value={form.item_date} onChange={update("item_date")} />
+          </label>
+          {lost && (
+            <label>Reward (optional)
+              <input maxLength={60} value={form.reward} onChange={update("reward")} placeholder="₹200, a coffee…" />
+            </label>
+          )}
+        </div>
 
         <label>Description
           <textarea rows={4} value={form.description} onChange={update("description")}
-            placeholder="Colour, brand, marks, what was inside… (the more detail, the better the matches)" />
+            placeholder="Colour, brand, marks, what was inside… More detail means better matches." />
         </label>
 
         <label>Photo (optional)
           <input type="file" accept="image/png,image/jpeg,image/gif,image/webp" onChange={pickImage} />
         </label>
-        {preview && <img src={preview} alt="Preview" className="preview" />}
 
         {error && <p className="error">{error}</p>}
-        <button className={`btn ${lost ? "btn-lost" : "btn-found"}`} disabled={saving}>
-          {saving ? "Pinning…" : "📌 Pin it & find matches"}
+        <button className={`btn btn-big ${lost ? "btn-red" : "btn-blue"}`} disabled={saving}>
+          {saving ? "Filing…" : lost ? "📌 Nail the poster up" : "📦 Put it in the box"}
         </button>
       </form>
+
+      <aside className="post-preview">
+        <p className="kicker">Live preview</p>
+        {lost ? <WantedPoster item={draft} as="div" /> : <FoundCard item={draft} as="div" />}
+      </aside>
     </div>
   );
 }

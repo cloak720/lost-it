@@ -1,17 +1,20 @@
-"""In-app messages so people can contact an item's owner without sharing phone numbers."""
-from flask import Blueprint, jsonify, request
-from flask_jwt_extended import get_jwt_identity, jwt_required
+"""In-app messages so people can contact an item's owner without sharing phone numbers.
 
+Messages are private: not even admins can read other people's conversations.
+"""
+from flask import Blueprint, g, jsonify, request
+
+from auth_utils import user_required
 from db import execute, query
 
 bp = Blueprint("messages", __name__)
 
 
 @bp.get("")
-@jwt_required()
+@user_required
 def my_messages():
     """All messages I sent or received, oldest first. The frontend groups them into chats."""
-    me = int(get_jwt_identity())
+    me = g.user["id"]
     rows = query(
         """SELECT m.id, m.item_id, m.sender_id, m.receiver_id, m.body, m.is_read, m.created_at,
                   i.title AS item_title, i.type AS item_type,
@@ -31,19 +34,19 @@ def my_messages():
 
 
 @bp.get("/unread-count")
-@jwt_required()
+@user_required
 def unread_count():
     row = query(
         "SELECT COUNT(*) AS n FROM messages WHERE receiver_id = %s AND is_read = FALSE",
-        (int(get_jwt_identity()),), one=True,
+        (g.user["id"],), one=True,
     )
     return jsonify(count=row["n"])
 
 
 @bp.post("")
-@jwt_required()
+@user_required
 def send_message():
-    me = int(get_jwt_identity())
+    me = g.user["id"]
     data = request.get_json(silent=True) or {}
     body = (data.get("body") or "").strip()
     item = query("SELECT id, user_id FROM items WHERE id = %s", (data.get("item_id"),), one=True)
@@ -74,11 +77,11 @@ def send_message():
 
 
 @bp.post("/read")
-@jwt_required()
+@user_required
 def mark_read():
     data = request.get_json(silent=True) or {}
     execute(
         "UPDATE messages SET is_read = TRUE WHERE item_id = %s AND sender_id = %s AND receiver_id = %s",
-        (data.get("item_id"), data.get("other_id"), int(get_jwt_identity())),
+        (data.get("item_id"), data.get("other_id"), g.user["id"]),
     )
     return jsonify(ok=True)

@@ -23,27 +23,33 @@ export default function Register() {
   }
 
   return (
-    <div className="narrow auth">
-      <h1>Join the board ✌️</h1>
-      <p className="page-sub">takes 20 seconds, promise</p>
-      <form className="card form" onSubmit={submit}>
-        <label>Full name
-          <input required value={form.name} onChange={update("name")} />
-        </label>
-        <label>College email
-          <input type="email" required value={form.email} onChange={update("email")} />
-        </label>
-        <label>Phone (optional)
-          <input value={form.phone} onChange={update("phone")} />
-        </label>
-        <label>Password
-          <input type="password" required minLength={6} value={form.password} onChange={update("password")} />
-        </label>
-        {error && <p className="error">{error}</p>}
-        <button className="btn btn-primary">Sign up</button>
-        <p className="muted small center">
-          Already have an account? <Link to="/login" state={location.state}>Log in</Link>
-        </p>
+    <div className="pass-wrap">
+      <form className="pass" onSubmit={submit}>
+        <span className="pass-clip" aria-hidden="true" />
+        <div className="pass-head">
+          <span>Lost-It Office</span>
+          <b>New Pass</b>
+        </div>
+        <div className="pass-body">
+          <label>Full name
+            <input required value={form.name} onChange={update("name")} />
+          </label>
+          <label>College email
+            <input type="email" required value={form.email} onChange={update("email")} />
+          </label>
+          <label>Phone (optional)
+            <input value={form.phone} onChange={update("phone")} />
+          </label>
+          <label>Password
+            <input type="password" required minLength={6} value={form.password} onChange={update("password")} />
+          </label>
+          {error && <p className="error">{error}</p>}
+          <button className="btn btn-amber btn-block">Print my pass →</button>
+          <p className="pass-foot">
+            Already have one? <Link to="/login" state={location.state}>Swipe in</Link>
+          </p>
+        </div>
+        <div className="pass-barcode" aria-hidden="true" />
       </form>
     </div>
   );

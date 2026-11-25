@@ -22,21 +22,28 @@ export default function Login() {
   }
 
   return (
-    <div className="narrow auth">
-      <h1>Welcome back 👋</h1>
-      <p className="page-sub">let's find your stuff</p>
-      <form className="card form" onSubmit={submit}>
-        <label>Email
-          <input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} />
-        </label>
-        <label>Password
-          <input type="password" required value={password} onChange={(e) => setPassword(e.target.value)} />
-        </label>
-        {error && <p className="error">{error}</p>}
-        <button className="btn btn-primary">Log in</button>
-        <p className="muted small center">
-          New here? <Link to="/register" state={location.state}>Create an account</Link>
-        </p>
+    <div className="pass-wrap">
+      <form className="pass" onSubmit={submit}>
+        <span className="pass-clip" aria-hidden="true" />
+        <div className="pass-head">
+          <span>Lost-It Office</span>
+          <b>Visitor Pass</b>
+        </div>
+        <div className="pass-body">
+          <div className="pass-photo" aria-hidden="true">🙂</div>
+          <label>Email
+            <input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} />
+          </label>
+          <label>Password
+            <input type="password" required value={password} onChange={(e) => setPassword(e.target.value)} />
+          </label>
+          {error && <p className="error">{error}</p>}
+          <button className="btn btn-amber btn-block">Swipe in →</button>
+          <p className="pass-foot">
+            No pass yet? <Link to="/register" state={location.state}>Get one here</Link>
+          </p>
+        </div>
+        <div className="pass-barcode" aria-hidden="true" />
       </form>
     </div>
   );

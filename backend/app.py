@@ -7,6 +7,7 @@ from flask_jwt_extended import JWTManager
 
 import db
 from config import Config
+from routes.admin import bp as admin_bp
 from routes.auth import bp as auth_bp
 from routes.items import bp as items_bp
 from routes.messages import bp as messages_bp
@@ -25,6 +26,7 @@ def create_app():
     app.register_blueprint(auth_bp, url_prefix="/api/auth")
     app.register_blueprint(items_bp, url_prefix="/api/items")
     app.register_blueprint(messages_bp, url_prefix="/api/messages")
+    app.register_blueprint(admin_bp, url_prefix="/api/admin")
     app.register_blueprint(meta_bp, url_prefix="/api")
 
     @app.get("/uploads/<path:filename>")
