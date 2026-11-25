@@ -10,6 +10,10 @@ Lost-It is a full-stack web app that helps students get lost things back, built 
 
 **Tech stack:** Python · Flask (REST API) · MySQL · React (Vite) · pure CSS 3D (no 3D libraries)
 
+[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/cloak720/lost-it?quickstart=1)
+
+Click the button to run the **whole app** (Flask + MySQL + React) in your browser. Nothing to install. See **Run it in GitHub Codespaces** below.
+
 ---
 
 ## ✨ Features
@@ -180,6 +184,17 @@ lost-it/
 ```
 
 ---
+
+## ☁️ Run it in GitHub Codespaces (no install)
+
+1. On the repo page click **Code → Codespaces → Create codespace on main** (or the button at the top of this README).
+2. Wait 2–4 minutes the first time. The Codespace installs Python, Node and MySQL, creates the database and loads the demo data ([`.devcontainer/setup.sh`](.devcontainer/setup.sh)).
+3. Flask and React start by themselves in two terminals, and the site opens on **port 5173**.
+4. **To share it:** open the **Ports** tab, right-click port **5173** → **Port Visibility → Public**, and copy the link.
+
+The Codespace stops itself after about 30 minutes of inactivity. Reopen it from the **Code → Codespaces** menu and everything is still there.
+
+**Admin password in Codespaces:** add a Codespaces secret named `ADMIN_PASSWORD` (GitHub **Settings → Codespaces → Secrets**, allowed for this repo) *before* creating the Codespace. If you don't, a random admin password is generated. It's printed at the end of the creation log and saved in `backend/.env` inside the Codespace.
 
 ## 🚀 Running it locally
 

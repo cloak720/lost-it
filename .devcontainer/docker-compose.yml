@@ -1,0 +1,23 @@
+# Two containers for GitHub Codespaces:
+#   app = where the code runs (Python + Node)
+#   db  = a MySQL 8 server, reachable from the app at host "db"
+services:
+  app:
+    image: mcr.microsoft.com/devcontainers/python:1-3.11-bookworm
+    volumes:
+      - ../..:/workspaces:cached
+    command: sleep infinity
+    depends_on:
+      - db
+
+  db:
+    image: mysql:8.0
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: lostit-dev   # only used inside this private container network
+      MYSQL_DATABASE: lost_it
+    volumes:
+      - mysql-data:/var/lib/mysql
+
+volumes:
+  mysql-data:

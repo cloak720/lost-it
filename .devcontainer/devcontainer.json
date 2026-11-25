@@ -1,0 +1,29 @@
+{
+  "name": "Lost-It (Flask + MySQL + React)",
+  "dockerComposeFile": "docker-compose.yml",
+  "service": "app",
+  "workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
+
+  "features": {
+    "ghcr.io/devcontainers/features/node:1": { "version": "20" }
+  },
+
+  "forwardPorts": [5173, 5000],
+  "portsAttributes": {
+    "5173": { "label": "Lost-It website", "onAutoForward": "openPreview" },
+    "5000": { "label": "Flask API", "onAutoForward": "silent" }
+  },
+
+  "postCreateCommand": "bash .devcontainer/setup.sh",
+
+  "postAttachCommand": {
+    "flask-api": "cd backend && python app.py",
+    "react-site": "cd frontend && npm run dev"
+  },
+
+  "customizations": {
+    "vscode": {
+      "extensions": ["ms-python.python"]
+    }
+  }
+}
